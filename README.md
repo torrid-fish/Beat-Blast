@@ -13,6 +13,7 @@
 ## 遊戲功能
 
 ### 遊戲階段流程圖
+<img src="./Beat-Blast/Assets/FlowChart.svg"/>
 
 ## 遊戲物件
 

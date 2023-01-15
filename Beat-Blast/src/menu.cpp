@@ -1,9 +1,8 @@
 #include "menu.h"
-#include "game_window.h"
-
 
 MENU::MENU() {
 	name = "MENU";
+	map = create_map("Assets/map.txt");
 }
 
 SCENE* MENU::create() {
@@ -20,9 +19,11 @@ void MENU::draw() {
 		0, 0, W, H, 0, 0, W, H , 0
 	);
 }
-void MENU::on_key_down(int keycode) {
+void MENU::on_key_down(void) {
+	if (key_down(ALLEGRO_KEY_ENTER))
+		next_scene = NORMAL_STAGE::create();
 }
-void MENU::on_key_up(int keycode) {
+void MENU::on_key_up(void) {
 }
 void MENU::on_mouse_down(void) {
 }
@@ -32,7 +33,3 @@ void MENU::on_mouse_up(void) {
 }
 void MENU::on_mouse_scroll(void) {
 }
-
-
-
-

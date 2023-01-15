@@ -32,6 +32,12 @@
     <ClCompile Include="src\menu.cpp">
       <Filter>資源檔</Filter>
     </ClCompile>
+    <ClCompile Include="src\normal_stage.cpp">
+      <Filter>資源檔</Filter>
+    </ClCompile>
+    <ClCompile Include="src\player.cpp">
+      <Filter>資源檔</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game_window.h">
@@ -50,6 +56,12 @@
       <Filter>標頭檔</Filter>
     </ClInclude>
     <ClInclude Include="src\menu.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="src\normal_stage.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="src\player.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>

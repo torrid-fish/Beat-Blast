@@ -163,6 +163,8 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\map.cpp" />
     <ClCompile Include="src\menu.cpp" />
+    <ClCompile Include="src\normal_stage.cpp" />
+    <ClCompile Include="src\player.cpp" />
     <ClCompile Include="src\shared.cpp" />
     <ClCompile Include="src\utility.cpp" />
   </ItemGroup>
@@ -170,6 +172,8 @@
     <ClInclude Include="src\game_window.h" />
     <ClInclude Include="src\map.h" />
     <ClInclude Include="src\menu.h" />
+    <ClInclude Include="src\normal_stage.h" />
+    <ClInclude Include="src\player.h" />
     <ClInclude Include="src\scene.h" />
     <ClInclude Include="src\shared.h" />
     <ClInclude Include="src\utility.h" />

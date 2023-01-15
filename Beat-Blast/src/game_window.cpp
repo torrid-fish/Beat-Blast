@@ -16,14 +16,16 @@ const int SCREEN_W			= 800;
 const int SCREEN_H			= 800;
 const int RESERVE_SAMPLES	= 4;
 
+/* Recive change scene signals. */
+SCENE* next_scene = NULL;
+
 /* Input states. */
 
 // Mouse position.
 int mouse_x, mouse_y;
 
 // Keyboard state, whether the key is down or not.
-bool key_state[ALLEGRO_KEY_MAX];
-
+ALLEGRO_KEYBOARD_STATE key_state;
 // Mouse state, whether the key is down or not.
 // 1 is for left, 2 is for right, 3 is for middle.
 bool* mouse_state;
@@ -31,7 +33,7 @@ bool* mouse_state;
 /* Game tick for animaiton. */
 uint32_t		GAME_TICK			= 0;
 uint32_t		SLOWER_GAME_TICK	= 0;
-const uint32_t	GAME_TICK_CD		= 64;
+const uint32_t	GAME_TICK_CD		= 64                                                                                            ;
 const uint32_t	SLOWER_GAME_TICK_CD = 256;
 
 /* Implementation of GameWindows. */
@@ -71,16 +73,11 @@ void GAME_WINDOW::game_init() {
 	// First scene
 	game_change_scene(MENU::create());
 
-
 	// Draw the first frame.
-	game_draw();
-
-	game_log("Game start event loop");
-	// This call blocks until the game is finished.
-	event_loop();
-
-	game_log("Game end");
-	current_scene->~SCENE();
+	al_clear_to_color(al_map_rgb(0, 0, 0));
+	current_scene->draw();
+	al_flip_display();
+	game_log("All initialization complete.");
 }
 
 void GAME_WINDOW::allegro5_init() {
@@ -150,35 +147,13 @@ void GAME_WINDOW::allegro5_init() {
 }
 
 void GAME_WINDOW::game_start() {
-	// Set random seed for better random outcome.
-	srand(time(NULL));
-
-	allegro5_init();
-	game_log("Allegro5 initialized");
-
-	shared_init();
-	game_log("Shared music/font initialized");
-
-	game_log("Game begin");
-	
-	// First scene.
-	game_change_scene(MENU::create());
-
-	// Draw the first frame.
-	game_draw();
-	game_log("Game start event loop");
+	game_init();
 
 	// This call blocks until the game is finished.
 	event_loop();
 
 	// After escape the loop, game ends.
 	game_log("Game end");
-}
-
-void GAME_WINDOW::game_draw() {
-	al_clear_to_color(al_map_rgb(0, 0, 0));
-	current_scene->draw();
-	al_flip_display();
 }
 
 void GAME_WINDOW::event_loop() {
@@ -213,19 +188,19 @@ void GAME_WINDOW::event_loop() {
 		else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 			// Event for keyboard key down.
 			game_log("Key with keycode %d down", event.keyboard.keycode);
-			key_state[event.keyboard.keycode] = true;
 			if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE && current_scene->name == "MENU") {
 				game_log("Escape clicked");
 				game_done = true;
 				continue;
 			}
-			current_scene->on_key_down(event.keyboard.keycode);
+			al_get_keyboard_state(&key_state);
+			current_scene->on_key_down();
 		}
 		else if (event.type == ALLEGRO_EVENT_KEY_UP) {
 			// Event for keyboard key up.
 			game_log("Key with keycode %d up", event.keyboard.keycode);
-			key_state[event.keyboard.keycode] = false;
-			current_scene->on_key_up(event.keyboard.keycode);
+			al_get_keyboard_state(&key_state);
+			current_scene->on_key_down();
 		}
 		else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
 			// Event for mouse key down.
@@ -259,8 +234,16 @@ void GAME_WINDOW::event_loop() {
 			if (re_draws > 1)
 				game_log("%d frame(s) dropped", re_draws - 1);
 			// Update and draw the next frame.
-			game_draw();
+			al_clear_to_color(al_map_rgb(0, 0, 0));
+			current_scene->draw();
+			al_flip_display();
 			re_draws = 0;
+		}
+
+		// Change scene
+		if (next_scene) {
+			game_change_scene(next_scene);
+			next_scene = NULL;
 		}
 	}
 }
@@ -278,44 +261,4 @@ void GAME_WINDOW::game_change_scene(SCENE* next_scene) {
 		game_abort("NULL game tick timer!!!");
 	al_set_timer_count(tick_timer, 0);
 	al_start_timer(tick_timer);
-}
-
-// Log using va_list.
-static void game_vlog(const char* format, va_list arg);
-
-void game_abort(const char* format, ...) {
-	va_list arg;
-	va_start(arg, format);
-	game_vlog(format, arg);
-	va_end(arg);
-	fprintf(stderr, "error occured, exiting after 2 secs");
-	// Wait 2 secs before exiting.
-	al_rest(2);
-	// Force exit program.
-	exit(1);
-}
-
-void game_log(const char* format, ...) {
-#ifdef LOG_ENABLED
-	va_list arg;
-	va_start(arg, format);
-	game_vlog(format, arg);
-	va_end(arg);
-#endif
-}
-
-static void game_vlog(const char* format, va_list arg) {
-#ifdef LOG_ENABLED
-	static bool clear_file = true;
-	vprintf(format, arg);
-	printf("\n");
-	// Write log to file for later debugging.
-	FILE* pFile = fopen("log.txt", clear_file ? "w" : "a");
-	if (pFile) {
-		vfprintf(pFile, format, arg);
-		fprintf(pFile, "\n");
-		fclose(pFile);
-	}
-	clear_file = false;
-#endif
 }

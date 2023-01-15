@@ -1,18 +1,18 @@
-#ifndef MENU_H
-#define MENU_H
-#include "map.h"
+#ifndef NORMAL_STAGE_H
+#define NORMAL_STAGE_H
 #include "scene.h"
 #include "utility.h"
+#include "map.h"
 #include "shared.h"
-#include "normal_stage.h"
-#include "game_window.h"
+#include "player.h"
 
-class MENU : public SCENE {
+
+class NORMAL_STAGE : public SCENE {
 public:
-	MENU();
-	static SCENE* create(void);				// Create a pointer to MENU scene
-	void update(void) override;				// Update MENU scene
-	void draw(void) override;				// Draw MENU scene
+	NORMAL_STAGE();
+	static SCENE* create(void);				// Create a pointer to NORMAL_STAGE scene
+	void update(void) override;				// Update NORMAL_STAGE scene
+	void draw(void) override;				// Draw NORMAL_STAGE scene
 	void on_key_down(void) override;		// Activate when key down
 	void on_key_up(void) override;			// Activate when key up
     void on_mouse_down(void) override;		// Activate when mouse down
@@ -21,5 +21,8 @@ public:
 	void on_mouse_scroll(void) override;	// Activate when mouse scroll
 private:
 	Map* map;
+	PLAYER* player1;
+	PLAYER* player2;
+	vector<OBJECT *> objects;
 };
 #endif

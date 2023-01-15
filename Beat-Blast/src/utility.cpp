@@ -6,6 +6,8 @@
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_audio.h>
 const int GridSize = 22;
+const int block_width = 21,  block_height = 21;			// the pixel size of a "block"
+const int map_offset_x = 25, map_offset_y = 50;			// pixel offset of where to start draw map
 float VOLUME = 1.0;
 extern const int map_offset_x;
 extern const int map_offset_y;
@@ -75,19 +77,12 @@ ALLEGRO_BITMAP* load_bitmap_resized(const char* filename, int w, int h) {
 	return resized_bmp;
 }
 
-bool pnt_in_rect(int px, int py, RecArea field) {
+bool pt_in_rect(int px, int py, RECTANGLE field) {
 	if (field.x <= px && field.x + field.w >= px && field.y <= py && field.y + field.h >= py)return 1;
 	else return 0;
 }
 
-void setRecArea(RecArea* RA, float x, float y, float w, float h) {
-	RA->x = x;
-	RA->y = y;
-	RA->w = w;
-	RA->h = h;
-}
-
-bool RecAreaOverlap(const RecArea RA,const RecArea RB) {
+bool RecOverlap(const RECTANGLE RA,const RECTANGLE RB) {
 	float RA_x2 = RA.x + RA.w;
 	float RA_y2 = RA.y + RA.h;
 	float RB_x2 = RB.x + RB.w;
@@ -96,37 +91,62 @@ bool RecAreaOverlap(const RecArea RA,const RecArea RB) {
 		return true;
 	return false;
 }
+RECTANGLE get_rec_by_pt_on_board(int grid_x, int grid_y, int grid_w, int grid_h) {
+	float x = map_offset_x + grid_x * block_width;
+	float y = map_offset_y + grid_y * block_height;
+	float w = block_width * grid_w;
+	float h = block_height * grid_h;
+	RECTANGLE generator(x, y, w, h);
+	return generator;
+}
 
-RecArea getDrawArea(object obj, uint32_t TOTAL_TICK) {
-	RecArea target;
-		
-	target.x = map_offset_x + obj.Coord.x * block_width;
-	target.y = map_offset_y + obj.Coord.y * block_height;
-	target.w = block_width;
-	target.h = block_height;
+RECTANGLE getDrawArea(RECTANGLE rec, int moveCD, Directions facing, uint32_t TOTAL_TICK) {
+	RECTANGLE target = rec;
 
-	switch (obj.preMove) {
+	switch (facing) {
 		case UP:
-			target.y += (obj.moveCD) * block_width / TOTAL_TICK;
-		break;
+			target.y -= moveCD * block_width / TOTAL_TICK;
+			break;
 		case DOWN:
-			target.y -= (obj.moveCD) * block_width / TOTAL_TICK;
-		break;
+			target.y += moveCD * block_width / TOTAL_TICK;
+			break;
 		case LEFT:
-			target.x += (obj.moveCD) * block_width / TOTAL_TICK;
-		break;
+			target.x -= moveCD * block_width / TOTAL_TICK;
+			break;
 		case RIGHT:
-			target.x -= (obj.moveCD) * block_width / TOTAL_TICK;
-		break;
+			target.x += moveCD * block_width / TOTAL_TICK;
+			break;
+		case UP_DOWN:
+			break;
+		case LEFT_RIGHT:
+			break;
+		case UP_LEFT:
+			target.y -= moveCD * block_width / TOTAL_TICK;
+			target.x -= moveCD * block_width / TOTAL_TICK;
+			break;
+		case DOWN_LEFT:
+			target.y += moveCD * block_width / TOTAL_TICK;
+			target.x -= moveCD * block_width / TOTAL_TICK;
+			break;
+		case DOWN_RIGHT:
+			target.y += moveCD * block_width / TOTAL_TICK;
+			target.x += moveCD * block_width / TOTAL_TICK;
+			break;
+		case UP_RIGHT:
+			target.y -= moveCD * block_width / TOTAL_TICK;
+			target.x += moveCD * block_width / TOTAL_TICK;
+			break;
 		case NONE:
 			break;
 		default:
 			break;
 	}
+
 	return target;	
 }
-void printRecAreaInfo(const RecArea* RA) {
-	game_log("RecArea info: \nx: %f, y: %f, h: %f\n",
+
+void printRecInfo(const RECTANGLE* RA) {
+	game_log("RecArea info: \nx: %f, y: %f, w: %f, h: %f\n",
 		RA->x, RA->y, RA->w, RA->h);
 }
 void printDirection(const Directions a) {
@@ -153,7 +173,7 @@ void printDirection(const Directions a) {
 	}
 }
 
-bool movetime(int speed) {
+bool is_time_to_move(int speed) {
 	return GAME_TICK % (GAME_TICK_CD / speed) == 0;
 }
 
@@ -171,4 +191,130 @@ bool bernoulliTrail(double p) {
 	if (p >= 1 || p <= 0) 
 		game_abort("Error range of p = %lf in BernoulliTrail func\n But p should be between 0.0 and 1.0", p);
 	return generateRandomFloat() < p;
+}
+
+bool movable(int grid_x, int grid_y, int grid_w, int grid_h, Map* M, Directions facing) {
+	switch (facing) {
+		case UP:
+			grid_y--;
+			break;
+		case DOWN:
+			grid_y++;
+			break;
+		case LEFT:
+			grid_x--;
+			break;
+		case RIGHT:
+			grid_x++;
+			break;
+		case UP_DOWN:
+			break;
+		case LEFT_RIGHT:
+			break;
+		case UP_LEFT:
+			grid_y--, grid_x--;
+			break;
+		case DOWN_LEFT:
+			grid_y++, grid_x--;
+			break;
+		case DOWN_RIGHT:
+			grid_y++, grid_x++;
+			break;
+		case UP_RIGHT:
+			grid_y--, grid_x++;
+			break;
+		default:
+			break;
+	}
+	bool res = true;
+	for (int i = 0; i < grid_w; i++)
+		for (int j = 0; j < grid_h; j++)
+			res &= !is_wall(M, grid_x + i, grid_y + j);
+	return res;
+}
+
+bool is_wall(Map* M, int index_x, int index_y) {
+	game_log("is wall %d %d", index_x, index_y);
+	if (index_x < 0 || index_x >= M->col_num || index_y < 0 || index_y >= M->row_num)
+		return true;
+	return M->map[index_y][index_x] == '#';
+}
+bool is_exit(Map* M, int index_x, int index_y) {
+	if (index_x < 0 || index_x >= M->col_num || index_y < 0 || index_y >= M->row_num)
+		return false;
+	return M->map[index_y][index_x] == 'E';
+}
+bool is_boss(Map* M, int index_x, int index_y) {
+	if (index_x < 0 || index_x >= M->col_num || index_y < 0 || index_y >= M->row_num)
+		return false;
+	return M->map[index_y][index_x] == 'B';
+}
+bool is_mini_monster(Map* M, int index_x, int index_y) {
+	if (index_x < 0 || index_x >= M->col_num || index_y < 0 || index_y >= M->row_num)
+		return false;
+	return M->map[index_y][index_x] == 'm';
+}
+bool is_mega_monster(Map* M, int index_x, int index_y) {
+	if (index_x < 0 || index_x >= M->col_num || index_y < 0 || index_y >= M->row_num)
+		return false;
+	return M->map[index_y][index_x] == 'M';
+}
+bool is_crystal(Map* M, int index_x, int index_y) {
+	if (index_x < 0 || index_x >= M->col_num || index_y < 0 || index_y >= M->row_num)
+		return false;
+	return M->map[index_y][index_x] == 'O';
+}
+bool is_p1(Map* M, int index_x, int index_y) {
+	if (index_x < 0 || index_x >= M->col_num || index_y < 0 || index_y >= M->row_num)
+		return false;
+	return M->map[index_y][index_x] == 'P';
+}
+bool is_p2(Map* M, int index_x, int index_y) {
+	if (index_x < 0 || index_x >= M->col_num || index_y < 0 || index_y >= M->row_num)
+		return false;
+	return M->map[index_y][index_x] == 'p';
+}
+
+bool key_down(int allegro_key) {
+	return al_key_down(&key_state, allegro_key);
+}
+
+// Log using va_list.
+static void game_vlog(const char* format, va_list arg);
+
+void game_abort(const char* format, ...) {
+	va_list arg;
+	va_start(arg, format);
+	game_vlog(format, arg);
+	va_end(arg);
+	fprintf(stderr, "error occured, exiting after 2 secs");
+	// Wait 2 secs before exiting.
+	al_rest(2);
+	// Force exit program.
+	exit(1);
+}
+
+void game_log(const char* format, ...) {
+#ifdef LOG_ENABLED
+	va_list arg;
+	va_start(arg, format);
+	game_vlog(format, arg);
+	va_end(arg);
+#endif
+}
+
+static void game_vlog(const char* format, va_list arg) {
+#ifdef LOG_ENABLED
+	static bool clear_file = true;
+	vprintf(format, arg);
+	printf("\n");
+	// Write log to file for later debugging.
+	FILE* pFile = fopen("log.txt", clear_file ? "w" : "a");
+	if (pFile) {
+		vfprintf(pFile, format, arg);
+		fprintf(pFile, "\n");
+		fclose(pFile);
+	}
+	clear_file = false;
+#endif
 }

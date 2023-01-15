@@ -1,0 +1,1773 @@
+There are total 16 supported mouse buttons
+Allegro5 initialized
+loaded font: Assets/Minecraft.ttf with size 30
+loaded audio: Assets/Music/original_theme.ogg
+loaded audio: Assets/Music/pacman-chomp.ogg
+loaded audio: Assets/Music/pacman_death.ogg
+loaded audio: Assets/Music/pacman_intermission.ogg
+loaded audio: Assets/Music/pacman_eatghost.ogg
+loaded image: Assets/concept_diagram.png
+Shared music/font initialized
+Game begin
+Change scene from MENU to MENU
+Show
+Game start event loop
+8 frame(s) dropped
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Mouse move_script to (510, 806)
+Mouse move_script to (522, 785)
+Show
+Mouse move_script to (529, 766)
+Mouse move_script to (545, 725)
+Show
+Mouse move_script to (553, 678)
+Mouse move_script to (569, 598)
+Show
+Mouse move_script to (585, 502)
+Mouse move_script to (593, 413)
+Show
+Mouse move_script to (598, 311)
+Mouse move_script to (603, 242)
+Show
+Mouse move_script to (606, 171)
+Mouse move_script to (612, 128)
+Show
+Mouse move_script to (615, 112)
+Mouse move_script to (621, 87)
+Show
+Mouse move_script to (624, 78)
+Mouse move_script to (628, 63)
+Mouse move_script to (629, 53)
+Show
+Mouse move_script to (632, 46)
+Mouse move_script to (632, 39)
+Show
+Mouse move_script to (632, 35)
+Mouse move_script to (632, 31)
+Show
+Mouse move_script to (632, 28)
+Mouse move_script to (631, 25)
+Show
+Mouse move_script to (630, 21)
+Mouse move_script to (629, 19)
+Show
+Mouse move_script to (628, 18)
+Mouse move_script to (628, 17)
+Show
+Mouse move_script to (628, 16)
+Mouse move_script to (627, 16)
+Show
+Show
+Show
+Mouse move_script to (627, 17)
+Show
+Mouse move_script to (627, 18)
+Show
+Mouse move_script to (627, 19)
+Show
+Mouse move_script to (627, 20)
+Show
+Show
+Mouse move_script to (627, 21)
+Show
+Mouse move_script to (626, 21)
+Mouse move_script to (625, 22)
+Mouse move_script to (624, 22)
+Show
+Mouse move_script to (621, 22)
+Mouse move_script to (618, 22)
+Show
+Mouse move_script to (613, 21)
+Mouse move_script to (606, 19)
+Show
+Mouse move_script to (599, 17)
+Show
+Mouse move_script to (592, 15)
+Mouse move_script to (586, 11)
+Show
+Mouse move_script to (579, 7)
+Mouse move_script to (571, 4)
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Mouse move_script to (581, 0)
+Mouse move_script to (581, 1)
+Show
+Mouse move_script to (581, 2)
+Show
+Mouse move_script to (581, 4)
+Mouse move_script to (581, 5)
+Show
+Show
+Mouse move_script to (581, 6)
+Mouse move_script to (580, 6)
+Show
+Mouse move_script to (580, 8)
+Show
+Mouse move_script to (580, 9)
+Mouse move_script to (580, 12)
+Show
+Mouse move_script to (580, 13)
+Mouse move_script to (580, 16)
+Show
+Mouse move_script to (580, 18)
+Mouse move_script to (580, 21)
+Show
+Mouse move_script to (580, 27)
+Mouse move_script to (580, 33)
+Show
+Mouse move_script to (580, 38)
+Mouse move_script to (580, 42)
+Show
+Mouse move_script to (580, 48)
+Mouse move_script to (581, 52)
+Show
+Mouse move_script to (582, 60)
+Mouse move_script to (583, 65)
+Show
+Mouse move_script to (583, 69)
+Mouse move_script to (584, 72)
+Show
+Mouse move_script to (585, 76)
+Mouse move_script to (585, 80)
+Show
+Mouse move_script to (586, 85)
+Mouse move_script to (586, 89)
+Show
+Mouse move_script to (586, 94)
+Mouse move_script to (586, 97)
+Show
+Mouse move_script to (585, 103)
+Show
+Mouse move_script to (584, 107)
+Mouse move_script to (583, 110)
+Mouse move_script to (582, 113)
+Show
+Mouse move_script to (582, 115)
+Mouse move_script to (582, 118)
+Show
+Mouse move_script to (581, 120)
+Show
+Mouse move_script to (581, 122)
+Show
+Mouse move_script to (580, 123)
+Show
+Mouse move_script to (580, 124)
+Show
+Mouse move_script to (580, 125)
+Mouse move_script to (580, 126)
+Show
+Mouse move_script to (580, 127)
+Show
+Mouse move_script to (580, 128)
+Mouse move_script to (580, 129)
+Show
+Mouse move_script to (580, 130)
+Show
+Mouse move_script to (580, 131)
+Mouse move_script to (580, 132)
+Show
+Mouse move_script to (580, 133)
+Mouse move_script to (580, 136)
+Show
+Mouse move_script to (580, 137)
+Show
+Mouse move_script to (580, 139)
+Mouse move_script to (580, 141)
+Show
+Mouse move_script to (580, 143)
+Mouse move_script to (580, 144)
+Show
+Mouse move_script to (580, 145)
+Show
+Mouse move_script to (580, 146)
+Mouse move_script to (580, 147)
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Mouse move_script to (580, 148)
+Show
+Mouse move_script to (580, 150)
+Mouse move_script to (580, 151)
+Show
+Mouse move_script to (580, 152)
+Mouse move_script to (580, 154)
+Show
+Mouse move_script to (580, 157)
+Mouse move_script to (578, 162)
+Show
+Mouse move_script to (578, 165)
+Mouse move_script to (575, 171)
+Show
+Mouse move_script to (572, 177)
+Mouse move_script to (567, 185)
+Show
+Mouse move_script to (564, 192)
+Mouse move_script to (560, 201)
+Show
+Mouse move_script to (556, 207)
+Mouse move_script to (551, 217)
+Show
+Mouse move_script to (547, 224)
+Mouse move_script to (541, 230)
+Show
+Mouse move_script to (536, 236)
+Mouse move_script to (533, 241)
+Show
+Mouse move_script to (524, 250)
+Mouse move_script to (516, 259)
+Mouse move_script to (509, 264)
+Show
+Mouse move_script to (506, 265)
+Mouse move_script to (498, 272)
+Show
+Mouse move_script to (490, 277)
+Mouse move_script to (486, 280)
+Show
+Mouse move_script to (480, 283)
+Mouse move_script to (470, 287)
+Show
+Mouse move_script to (463, 289)
+Show
+Mouse move_script to (453, 292)
+Mouse move_script to (440, 294)
+Show
+Mouse move_script to (431, 295)
+Mouse move_script to (421, 295)
+Show
+Mouse move_script to (405, 296)
+Mouse move_script to (397, 296)
+Show
+Mouse move_script to (387, 296)
+Mouse move_script to (382, 297)
+Show
+Mouse move_script to (379, 297)
+Mouse move_script to (376, 297)
+Show
+Mouse move_script to (374, 297)
+Mouse move_script to (373, 297)
+Show
+Mouse move_script to (373, 298)
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Mouse move_script to (372, 298)
+Mouse move_script to (371, 298)
+Show
+Mouse move_script to (369, 298)
+Mouse move_script to (367, 298)
+Show
+Mouse move_script to (364, 298)
+Mouse move_script to (361, 298)
+Show
+Mouse move_script to (357, 299)
+Mouse move_script to (355, 300)
+Show
+Mouse move_script to (352, 301)
+Mouse move_script to (349, 303)
+Show
+Mouse move_script to (348, 304)
+Mouse move_script to (347, 304)
+Show
+Mouse move_script to (345, 305)
+Mouse move_script to (345, 306)
+Show
+Mouse move_script to (344, 306)
+Show
+Mouse move_script to (343, 307)
+Show
+Mouse move_script to (342, 307)
+Show
+Mouse move_script to (341, 308)
+Mouse move_script to (340, 309)
+Show
+Mouse move_script to (339, 309)
+Mouse move_script to (338, 309)
+Mouse move_script to (337, 310)
+Show
+Mouse move_script to (335, 311)
+Mouse move_script to (332, 311)
+Show
+Mouse move_script to (330, 313)
+Mouse move_script to (328, 314)
+Show
+Mouse move_script to (326, 314)
+Mouse move_script to (323, 316)
+Show
+Mouse move_script to (320, 317)
+Mouse move_script to (319, 318)
+Show
+Mouse move_script to (317, 319)
+Mouse move_script to (315, 319)
+Show
+Mouse move_script to (314, 320)
+Mouse move_script to (313, 321)
+Show
+Mouse move_script to (311, 322)
+Mouse move_script to (311, 323)
+Show
+Mouse move_script to (309, 323)
+Mouse move_script to (308, 324)
+Show
+Mouse move_script to (306, 324)
+Mouse move_script to (305, 325)
+Show
+Mouse move_script to (304, 325)
+Mouse move_script to (303, 325)
+Show
+Mouse move_script to (302, 325)
+Show
+Mouse move_script to (301, 325)
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Mouse move_script to (301, 324)
+Show
+Mouse move_script to (302, 324)
+Mouse move_script to (302, 323)
+Show
+Mouse move_script to (303, 323)
+Show
+Show
+Show
+Show
+Show
+Mouse move_script to (304, 322)
+Show
+Show
+Mouse move_script to (304, 321)
+Mouse move_script to (304, 320)
+Show
+Show
+Show
+Show
+Mouse move_script to (305, 320)
+Show
+Show
+Show
+Show
+Show
+Mouse move_script to (302, 320)
+Mouse move_script to (299, 320)
+Show
+Mouse move_script to (296, 320)
+Mouse move_script to (294, 320)
+Show
+Mouse move_script to (292, 320)
+Mouse move_script to (288, 320)
+Show
+Mouse move_script to (287, 320)
+Mouse move_script to (285, 320)
+Show
+Mouse move_script to (285, 321)
+Mouse move_script to (284, 321)
+Show
+Mouse move_script to (284, 322)
+Show
+Mouse move_script to (284, 323)
+Mouse move_script to (284, 329)
+Show
+Mouse move_script to (286, 337)
+Mouse move_script to (288, 348)
+Show
+Mouse move_script to (290, 363)
+Mouse move_script to (292, 373)
+Show
+Mouse move_script to (295, 394)
+Mouse move_script to (295, 405)
+Show
+Mouse move_script to (296, 418)
+Mouse move_script to (296, 430)
+Show
+Mouse move_script to (296, 437)
+Mouse move_script to (296, 440)
+Show
+Mouse move_script to (296, 445)
+Mouse move_script to (296, 454)
+Show
+Mouse move_script to (296, 462)
+Mouse move_script to (295, 471)
+Show
+Mouse move_script to (295, 476)
+Mouse move_script to (295, 483)
+Show
+Mouse move_script to (294, 490)
+Mouse move_script to (293, 493)
+Show
+Mouse move_script to (293, 495)
+Mouse move_script to (293, 496)
+Show
+Mouse move_script to (293, 497)
+Show
+Show
+Show
+Mouse move_script to (292, 497)
+Mouse move_script to (292, 494)
+Show
+Mouse move_script to (292, 491)
+Mouse move_script to (292, 488)
+Show
+Mouse move_script to (292, 484)
+Mouse move_script to (292, 478)
+Show
+Mouse move_script to (292, 472)
+Mouse move_script to (294, 466)
+Show
+Mouse move_script to (296, 461)
+Mouse move_script to (301, 452)
+Show
+Mouse move_script to (313, 441)
+Mouse move_script to (321, 436)
+Show
+Mouse move_script to (338, 428)
+Mouse move_script to (351, 425)
+Show
+Mouse move_script to (365, 425)
+Mouse move_script to (375, 427)
+Show
+Mouse move_script to (380, 430)
+Mouse move_script to (383, 436)
+Show
+Mouse move_script to (384, 439)
+Mouse move_script to (384, 442)
+Show
+Mouse move_script to (381, 446)
+Mouse move_script to (373, 452)
+Show
+Mouse move_script to (363, 457)
+Mouse move_script to (352, 460)
+Show
+Mouse move_script to (330, 461)
+Mouse move_script to (313, 461)
+Show
+Mouse move_script to (300, 461)
+Mouse move_script to (289, 461)
+Show
+Mouse move_script to (274, 459)
+Mouse move_script to (264, 455)
+Show
+Mouse move_script to (254, 450)
+Mouse move_script to (247, 442)
+Mouse move_script to (243, 436)
+Show
+Mouse move_script to (242, 432)
+Mouse move_script to (242, 425)
+Show
+Mouse move_script to (243, 412)
+Mouse move_script to (246, 405)
+Show
+Mouse move_script to (253, 394)
+Mouse move_script to (266, 376)
+Show
+Mouse move_script to (279, 365)
+Mouse move_script to (307, 342)
+Show
+Mouse move_script to (336, 325)
+Mouse move_script to (354, 315)
+Show
+Mouse move_script to (378, 304)
+Mouse move_script to (412, 288)
+Show
+Mouse move_script to (434, 279)
+Mouse move_script to (454, 271)
+Show
+Mouse move_script to (472, 264)
+Mouse move_script to (484, 258)
+Show
+Mouse move_script to (496, 253)
+Mouse move_script to (504, 250)
+Show
+Mouse move_script to (508, 247)
+Mouse move_script to (510, 245)
+Show
+Mouse move_script to (511, 245)
+Mouse move_script to (511, 244)
+Show
+Mouse move_script to (511, 243)
+Show
+Mouse move_script to (511, 242)
+Show
+Mouse move_script to (511, 240)
+Mouse move_script to (510, 239)
+Mouse move_script to (510, 237)
+Show
+Mouse move_script to (510, 236)
+Mouse move_script to (510, 234)
+Show
+Mouse move_script to (510, 233)
+Mouse move_script to (510, 232)
+Show
+Mouse move_script to (510, 231)
+Show
+Mouse move_script to (510, 229)
+Show
+Mouse move_script to (510, 228)
+Mouse move_script to (510, 227)
+Show
+Show
+Mouse button 1 down at (510, 227)
+Mouse move_script to (510, 226)
+Show
+Show
+Mouse move_script to (509, 226)
+Show
+Mouse move_script to (509, 227)
+Mouse move_script to (508, 227)
+Show
+Mouse move_script to (507, 229)
+Show
+Mouse move_script to (506, 229)
+Mouse move_script to (505, 230)
+Show
+Mouse move_script to (504, 233)
+Mouse move_script to (502, 234)
+Show
+Mouse move_script to (501, 235)
+Mouse move_script to (499, 239)
+Show
+Mouse move_script to (498, 241)
+Mouse button 1 up at (498, 241)
+Mouse move_script to (496, 242)
+Show
+Mouse move_script to (495, 244)
+Mouse move_script to (492, 247)
+Show
+Mouse move_script to (490, 249)
+Mouse move_script to (486, 250)
+Show
+Mouse move_script to (480, 253)
+Mouse move_script to (476, 255)
+Show
+Mouse move_script to (470, 256)
+Mouse move_script to (465, 256)
+Show
+Mouse move_script to (459, 257)
+Mouse move_script to (456, 257)
+Mouse move_script to (455, 257)
+Show
+Mouse move_script to (454, 256)
+Show
+Mouse move_script to (453, 254)
+Mouse move_script to (453, 252)
+Show
+Mouse move_script to (453, 250)
+Mouse move_script to (454, 249)
+Show
+Mouse move_script to (456, 246)
+Mouse move_script to (460, 243)
+Show
+Mouse move_script to (464, 240)
+Mouse move_script to (474, 236)
+Show
+Mouse move_script to (487, 232)
+Mouse move_script to (493, 232)
+Show
+Mouse move_script to (506, 231)
+Mouse move_script to (519, 231)
+Show
+Mouse move_script to (524, 231)
+Mouse move_script to (528, 231)
+Show
+Show
+Mouse move_script to (528, 232)
+Show
+Mouse move_script to (526, 234)
+Mouse move_script to (521, 236)
+Show
+Mouse move_script to (514, 239)
+Mouse move_script to (506, 241)
+Show
+Mouse move_script to (496, 243)
+Mouse move_script to (489, 244)
+Mouse move_script to (482, 245)
+Show
+Mouse move_script to (477, 245)
+Show
+Mouse move_script to (476, 245)
+Mouse move_script to (474, 245)
+Show
+Mouse move_script to (474, 244)
+Show
+Mouse move_script to (474, 242)
+Mouse move_script to (479, 237)
+Show
+Mouse move_script to (482, 235)
+Mouse move_script to (489, 231)
+Mouse move_script to (492, 230)
+Show
+Mouse move_script to (493, 230)
+Show
+Show
+Mouse move_script to (492, 232)
+Mouse move_script to (490, 236)
+Show
+Mouse move_script to (486, 238)
+Mouse move_script to (484, 242)
+Show
+Mouse move_script to (480, 244)
+Mouse move_script to (479, 246)
+Show
+Mouse move_script to (478, 247)
+Show
+Show
+Mouse move_script to (478, 246)
+Show
+Mouse move_script to (478, 242)
+Mouse move_script to (478, 239)
+Show
+Mouse move_script to (479, 237)
+Mouse move_script to (479, 234)
+Show
+Mouse move_script to (480, 232)
+Mouse move_script to (481, 230)
+Show
+Mouse move_script to (481, 228)
+Mouse move_script to (482, 227)
+Show
+Mouse move_script to (482, 226)
+Show
+Show
+Show
+Show
+Mouse move_script to (482, 227)
+Mouse move_script to (480, 228)
+Show
+Mouse move_script to (478, 230)
+Mouse move_script to (475, 231)
+Show
+Mouse move_script to (470, 233)
+Mouse move_script to (467, 234)
+Show
+Mouse move_script to (463, 235)
+Mouse move_script to (461, 235)
+Mouse move_script to (459, 235)
+Show
+Mouse move_script to (458, 235)
+Mouse move_script to (457, 235)
+Show
+Show
+Show
+Mouse move_script to (457, 233)
+Show
+Mouse move_script to (458, 233)
+Mouse move_script to (458, 232)
+Show
+Mouse move_script to (459, 231)
+Mouse move_script to (460, 231)
+Show
+Mouse move_script to (461, 231)
+Show
+Mouse move_script to (462, 231)
+Mouse move_script to (462, 232)
+Show
+Mouse move_script to (462, 235)
+Mouse move_script to (462, 237)
+Show
+Mouse move_script to (460, 240)
+Mouse move_script to (458, 243)
+Show
+Mouse move_script to (455, 247)
+Mouse move_script to (450, 251)
+Show
+Mouse move_script to (444, 255)
+Mouse move_script to (436, 259)
+Mouse move_script to (430, 261)
+Show
+Mouse move_script to (423, 261)
+Show
+Mouse move_script to (419, 261)
+Mouse move_script to (416, 261)
+Mouse move_script to (412, 259)
+Show
+Mouse move_script to (403, 254)
+Show
+Mouse move_script to (399, 249)
+Mouse move_script to (396, 246)
+Mouse move_script to (393, 241)
+Show
+Mouse move_script to (392, 237)
+Show
+Mouse move_script to (392, 232)
+Mouse move_script to (398, 225)
+Show
+Mouse move_script to (405, 220)
+Mouse move_script to (423, 209)
+Show
+Mouse move_script to (438, 204)
+Mouse move_script to (461, 200)
+Show
+Mouse move_script to (475, 198)
+Mouse move_script to (485, 197)
+Show
+Mouse move_script to (497, 197)
+Mouse move_script to (506, 198)
+Show
+Mouse move_script to (510, 201)
+Mouse move_script to (510, 204)
+Show
+Mouse move_script to (510, 209)
+Mouse move_script to (505, 217)
+Show
+Mouse move_script to (496, 227)
+Mouse move_script to (489, 235)
+Show
+Mouse move_script to (472, 245)
+Mouse move_script to (454, 255)
+Show
+Mouse move_script to (439, 261)
+Mouse move_script to (415, 267)
+Mouse move_script to (401, 271)
+Show
+Mouse move_script to (388, 273)
+Mouse move_script to (382, 273)
+Show
+Mouse move_script to (372, 273)
+Mouse move_script to (366, 270)
+Show
+Mouse move_script to (363, 267)
+Mouse move_script to (361, 263)
+Show
+Mouse move_script to (361, 252)
+Mouse move_script to (362, 245)
+Show
+Mouse move_script to (368, 235)
+Mouse move_script to (380, 223)
+Show
+Mouse move_script to (390, 217)
+Show
+Mouse move_script to (408, 209)
+Mouse move_script to (422, 204)
+Show
+Mouse move_script to (482, 202)
+Mouse move_script to (493, 205)
+Show
+Mouse move_script to (508, 212)
+Mouse move_script to (513, 217)
+Show
+Mouse move_script to (518, 228)
+Mouse move_script to (519, 237)
+Show
+Mouse move_script to (519, 244)
+Mouse move_script to (515, 262)
+Show
+Mouse move_script to (501, 286)
+Mouse move_script to (491, 297)
+Show
+Mouse move_script to (463, 320)
+Mouse move_script to (434, 337)
+Show
+Mouse move_script to (398, 352)
+Mouse move_script to (344, 364)
+Show
+Mouse move_script to (294, 372)
+Mouse move_script to (253, 372)
+Mouse move_script to (202, 372)
+Show
+Mouse move_script to (149, 367)
+Mouse move_script to (120, 360)
+Show
+Mouse move_script to (103, 354)
+Mouse move_script to (95, 348)
+Show
+Mouse move_script to (93, 344)
+Mouse move_script to (91, 340)
+Show
+Mouse move_script to (91, 331)
+Mouse move_script to (92, 321)
+Show
+Mouse move_script to (94, 317)
+Mouse move_script to (99, 305)
+Show
+Mouse move_script to (104, 296)
+Mouse move_script to (108, 289)
+Show
+Mouse move_script to (111, 283)
+Mouse move_script to (114, 278)
+Show
+Mouse move_script to (114, 277)
+Mouse move_script to (114, 275)
+Show
+Mouse move_script to (115, 273)
+Show
+Show
+Show
+Show
+Mouse move_script to (116, 273)
+Show
+Mouse move_script to (117, 272)
+Show
+Mouse move_script to (119, 271)
+Mouse move_script to (121, 270)
+Show
+Mouse move_script to (123, 268)
+Mouse move_script to (126, 267)
+Show
+Mouse move_script to (127, 267)
+Mouse move_script to (127, 266)
+Show
+Show
+Show
+Show
+Show
+Mouse move_script to (128, 266)
+Show
+Mouse move_script to (129, 266)
+Show
+Mouse move_script to (130, 265)
+Mouse move_script to (132, 265)
+Show
+Mouse move_script to (136, 265)
+Mouse move_script to (140, 265)
+Show
+Mouse move_script to (143, 265)
+Mouse move_script to (149, 265)
+Show
+Mouse move_script to (158, 265)
+Mouse move_script to (172, 266)
+Mouse move_script to (182, 266)
+Show
+Mouse move_script to (190, 266)
+Mouse move_script to (207, 266)
+Show
+Mouse move_script to (221, 266)
+Mouse move_script to (230, 266)
+Show
+Mouse move_script to (238, 266)
+Mouse move_script to (249, 266)
+Show
+Mouse move_script to (256, 266)
+Mouse move_script to (261, 267)
+Show
+Mouse move_script to (266, 267)
+Mouse move_script to (268, 267)
+Show
+Mouse move_script to (269, 267)
+Mouse move_script to (270, 268)
+Show
+Show
+Mouse move_script to (271, 268)
+Mouse move_script to (273, 268)
+Show
+Mouse move_script to (275, 268)
+Mouse move_script to (279, 268)
+Show
+Mouse move_script to (283, 268)
+Mouse move_script to (286, 268)
+Show
+Mouse move_script to (292, 268)
+Mouse move_script to (299, 268)
+Show
+Mouse move_script to (310, 268)
+Mouse move_script to (321, 268)
+Show
+Mouse move_script to (332, 268)
+Mouse move_script to (339, 268)
+Mouse move_script to (351, 268)
+Show
+Mouse move_script to (364, 268)
+Show
+Mouse move_script to (378, 268)
+Mouse move_script to (389, 268)
+Mouse move_script to (396, 268)
+Show
+Mouse move_script to (405, 268)
+Mouse move_script to (413, 268)
+Show
+Mouse move_script to (421, 268)
+Mouse move_script to (431, 268)
+Show
+Mouse move_script to (436, 268)
+Mouse move_script to (444, 268)
+Show
+Mouse move_script to (449, 268)
+Mouse move_script to (454, 268)
+Show
+Mouse move_script to (457, 268)
+Mouse move_script to (460, 268)
+Show
+Mouse move_script to (462, 268)
+Mouse move_script to (464, 268)
+Show
+Mouse move_script to (468, 268)
+Mouse move_script to (469, 268)
+Show
+Mouse move_script to (470, 268)
+Mouse move_script to (472, 268)
+Show
+Mouse move_script to (473, 267)
+Mouse move_script to (474, 267)
+Show
+Mouse move_script to (475, 266)
+Show
+Mouse move_script to (476, 266)
+Mouse move_script to (478, 266)
+Show
+Mouse move_script to (480, 265)
+Mouse move_script to (482, 264)
+Show
+Mouse move_script to (485, 264)
+Mouse move_script to (488, 263)
+Show
+Mouse move_script to (491, 263)
+Mouse move_script to (494, 263)
+Mouse move_script to (497, 263)
+Show
+Mouse move_script to (499, 263)
+Mouse move_script to (500, 263)
+Show
+Mouse move_script to (502, 263)
+Mouse move_script to (503, 263)
+Show
+Mouse move_script to (505, 263)
+Mouse move_script to (506, 263)
+Show
+Mouse move_script to (507, 263)
+Mouse move_script to (509, 263)
+Show
+Mouse move_script to (510, 263)
+Mouse move_script to (511, 263)
+Show
+Mouse move_script to (512, 263)
+Mouse move_script to (515, 263)
+Show
+Mouse move_script to (517, 263)
+Mouse move_script to (519, 263)
+Show
+Mouse move_script to (521, 263)
+Mouse move_script to (523, 263)
+Show
+Mouse move_script to (525, 263)
+Mouse move_script to (528, 263)
+Show
+Mouse move_script to (534, 262)
+Mouse move_script to (537, 262)
+Show
+Mouse move_script to (540, 262)
+Mouse move_script to (543, 261)
+Show
+Mouse move_script to (546, 261)
+Mouse move_script to (549, 261)
+Show
+Mouse move_script to (552, 261)
+Mouse move_script to (555, 260)
+Show
+Mouse move_script to (559, 260)
+Mouse move_script to (562, 260)
+Show
+Mouse move_script to (567, 260)
+Mouse move_script to (571, 260)
+Show
+Mouse move_script to (575, 260)
+Mouse move_script to (578, 260)
+Mouse move_script to (581, 260)
+Show
+Mouse move_script to (582, 260)
+Mouse move_script to (585, 260)
+Show
+Mouse move_script to (587, 260)
+Show
+Mouse move_script to (588, 260)
+Show
+Mouse move_script to (589, 260)
+Show
+Mouse move_script to (589, 259)
+Mouse move_script to (590, 259)
+Show
+Mouse move_script to (592, 258)
+Mouse move_script to (595, 258)
+Show
+Mouse move_script to (598, 258)
+Mouse move_script to (601, 257)
+Show
+Mouse move_script to (603, 256)
+Mouse move_script to (607, 256)
+Show
+Mouse move_script to (610, 255)
+Mouse move_script to (611, 255)
+Show
+Mouse move_script to (612, 255)
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Mouse move_script to (613, 255)
+Show
+Mouse move_script to (614, 255)
+Show
+Show
+Show
+Mouse move_script to (615, 255)
+Show
+Show
+Show
+Show
+Mouse move_script to (616, 255)
+Show
+Mouse move_script to (616, 254)
+Show
+Show
+Show
+Mouse move_script to (617, 254)
+Show
+Mouse move_script to (618, 254)
+Mouse move_script to (619, 255)
+Show
+Mouse move_script to (620, 256)
+Mouse move_script to (622, 257)
+Show
+Mouse move_script to (623, 259)
+Mouse move_script to (624, 260)
+Show
+Mouse move_script to (625, 262)
+Mouse move_script to (627, 263)
+Show
+Mouse move_script to (627, 264)
+Mouse move_script to (629, 265)
+Show
+Mouse move_script to (630, 266)
+Mouse move_script to (631, 266)
+Show
+Mouse move_script to (631, 267)
+Show
+Mouse move_script to (632, 268)
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Mouse move_script to (631, 268)
+Mouse move_script to (624, 265)
+Show
+Mouse move_script to (615, 260)
+Mouse move_script to (596, 243)
+Show
+Mouse move_script to (579, 219)
+Mouse move_script to (562, 177)
+Show
+Mouse move_script to (554, 142)
+Mouse move_script to (547, 110)
+Show
+Mouse move_script to (544, 87)
+Mouse move_script to (543, 67)
+Show
+Mouse move_script to (543, 54)
+Mouse move_script to (545, 38)
+Show
+Mouse move_script to (549, 25)
+Mouse move_script to (553, 11)
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Mouse move_script to (585, 3)
+Mouse move_script to (577, 12)
+Show
+Mouse move_script to (567, 22)
+Mouse move_script to (551, 36)
+Mouse move_script to (521, 54)
+Show
+Mouse move_script to (503, 64)
+Mouse move_script to (454, 81)
+Show
+Mouse move_script to (416, 90)
+Mouse move_script to (360, 102)
+Show
+Mouse move_script to (305, 108)
+Mouse move_script to (247, 114)
+Show
+Mouse move_script to (192, 118)
+Mouse move_script to (137, 122)
+Show
+Mouse move_script to (90, 126)
+Mouse move_script to (67, 129)
+Show
+Mouse move_script to (28, 132)
+Mouse move_script to (8, 135)
+Show
+Mouse move_script to (-3, 137)
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Mouse move_script to (8, 397)
+Show
+Mouse move_script to (60, 396)
+Mouse move_script to (113, 390)
+Show
+Mouse move_script to (168, 380)
+Mouse move_script to (222, 366)
+Show
+Mouse move_script to (260, 355)
+Mouse move_script to (314, 339)
+Mouse move_script to (360, 326)
+Show
+Mouse move_script to (390, 318)
+Show
+Mouse move_script to (417, 313)
+Mouse move_script to (432, 311)
+Show
+Mouse move_script to (449, 309)
+Mouse move_script to (450, 309)
+Show
+Mouse move_script to (451, 310)
+Mouse move_script to (451, 316)
+Show
+Mouse move_script to (448, 331)
+Mouse move_script to (440, 364)
+Show
+Mouse move_script to (427, 399)
+Mouse move_script to (415, 430)
+Show
+Mouse move_script to (394, 477)
+Mouse move_script to (371, 517)
+Show
+Mouse move_script to (343, 568)
+Mouse move_script to (319, 601)
+Show
+Mouse move_script to (299, 626)
+Show
+Show
+Show
+Show
+Mouse move_script to (247, 622)
+Mouse move_script to (264, 593)
+Show
+Mouse move_script to (292, 547)
+Mouse move_script to (319, 509)
+Show
+Mouse move_script to (355, 465)
+Show
+Mouse move_script to (400, 422)
+Mouse move_script to (433, 396)
+Mouse move_script to (481, 368)
+Show
+Mouse move_script to (531, 346)
+Mouse move_script to (591, 326)
+Show
+Mouse move_script to (639, 314)
+Show
+Show
+Show
+Show
+Mouse move_script to (623, 328)
+Mouse move_script to (580, 330)
+Show
+Mouse move_script to (533, 330)
+Mouse move_script to (468, 329)
+Show
+Mouse move_script to (405, 321)
+Mouse move_script to (344, 311)
+Show
+Mouse move_script to (300, 297)
+Mouse move_script to (288, 292)
+Show
+Mouse move_script to (272, 280)
+Mouse move_script to (272, 278)
+Show
+Mouse move_script to (274, 272)
+Mouse move_script to (286, 264)
+Show
+Mouse move_script to (318, 247)
+Mouse move_script to (365, 227)
+Mouse move_script to (412, 212)
+Show
+Mouse move_script to (450, 199)
+Mouse move_script to (502, 181)
+Show
+Mouse move_script to (532, 171)
+Mouse move_script to (557, 161)
+Show
+Mouse move_script to (570, 154)
+Mouse move_script to (576, 149)
+Show
+Mouse move_script to (577, 147)
+Mouse move_script to (577, 146)
+Show
+Mouse move_script to (577, 143)
+Show
+Mouse move_script to (576, 141)
+Mouse move_script to (566, 133)
+Show
+Mouse move_script to (564, 132)
+Mouse move_script to (560, 129)
+Show
+Mouse move_script to (559, 127)
+Mouse move_script to (559, 126)
+Show
+Mouse move_script to (559, 124)
+Mouse move_script to (559, 122)
+Show
+Mouse move_script to (559, 120)
+Mouse move_script to (559, 117)
+Show
+Mouse move_script to (559, 115)
+Mouse move_script to (561, 114)
+Show
+Mouse move_script to (561, 112)
+Mouse move_script to (562, 111)
+Show
+Mouse move_script to (563, 111)
+Mouse move_script to (564, 110)
+Show
+Mouse move_script to (566, 110)
+Show
+Mouse move_script to (566, 111)
+Mouse move_script to (566, 116)
+Show
+Mouse move_script to (559, 128)
+Mouse move_script to (551, 140)
+Show
+Mouse move_script to (534, 158)
+Mouse move_script to (522, 167)
+Show
+Mouse move_script to (482, 196)
+Mouse move_script to (445, 215)
+Show
+Mouse move_script to (388, 233)
+Mouse move_script to (335, 243)
+Show
+Mouse move_script to (277, 245)
+Show
+Mouse move_script to (229, 245)
+Mouse move_script to (170, 234)
+Show
+Mouse move_script to (135, 225)
+Mouse move_script to (124, 218)
+Show
+Mouse move_script to (122, 212)
+Mouse move_script to (127, 206)
+Show
+Mouse move_script to (139, 201)
+Mouse move_script to (181, 188)
+Show
+Mouse move_script to (223, 182)
+Mouse move_script to (275, 178)
+Show
+Mouse move_script to (332, 178)
+Mouse move_script to (364, 186)
+Show
+Mouse move_script to (406, 205)
+Mouse move_script to (434, 224)
+Show
+Mouse move_script to (446, 241)
+Mouse move_script to (451, 257)
+Show
+Mouse move_script to (451, 284)
+Mouse move_script to (444, 298)
+Show
+Mouse move_script to (418, 320)
+Mouse move_script to (365, 344)
+Show
+Mouse move_script to (317, 356)
+Mouse move_script to (262, 362)
+Mouse move_script to (224, 362)
+Show
+Mouse move_script to (174, 355)
+Mouse move_script to (141, 345)
+Show
+Mouse move_script to (114, 326)
+Mouse move_script to (106, 316)
+Show
+Mouse move_script to (101, 302)
+Mouse move_script to (101, 290)
+Show
+Mouse move_script to (114, 275)
+Mouse move_script to (126, 267)
+Show
+Mouse move_script to (151, 258)
+Mouse move_script to (177, 255)
+Show
+Mouse move_script to (192, 255)
+Mouse move_script to (216, 257)
+Show
+Mouse move_script to (248, 275)
+Mouse move_script to (257, 282)
+Show
+Mouse move_script to (266, 299)
+Mouse move_script to (267, 310)
+Show
+Mouse move_script to (261, 329)
+Mouse move_script to (251, 340)
+Show
+Mouse move_script to (226, 354)
+Mouse move_script to (200, 367)
+Mouse move_script to (162, 380)
+Show
+Mouse move_script to (114, 390)
+Show
+Mouse move_script to (78, 393)
+Mouse move_script to (48, 393)
+Show
+Mouse move_script to (20, 392)
+Mouse move_script to (9, 389)
+Show
+Show
+Show
+Mouse move_script to (4, 317)
+Mouse move_script to (16, 300)
+Show
+Mouse move_script to (38, 277)
+Mouse move_script to (56, 260)
+Show
+Mouse move_script to (92, 225)
+Mouse move_script to (110, 211)
+Show
+Mouse move_script to (132, 193)
+Mouse move_script to (160, 173)
+Show
+Mouse move_script to (185, 154)
+Mouse move_script to (204, 141)
+Show
+Mouse move_script to (214, 136)
+Mouse move_script to (227, 127)
+Show
+Mouse move_script to (236, 122)
+Mouse move_script to (251, 115)
+Show
+Mouse move_script to (261, 109)
+Mouse move_script to (275, 103)
+Show
+Mouse move_script to (284, 99)
+Mouse move_script to (295, 95)
+Show
+Mouse move_script to (309, 89)
+Mouse move_script to (321, 85)
+Show
+Mouse move_script to (327, 83)
+Mouse move_script to (339, 81)
+Mouse move_script to (345, 79)
+Show
+Mouse move_script to (348, 78)
+Show
+Mouse move_script to (352, 78)
+Mouse move_script to (353, 77)
+Mouse move_script to (355, 77)
+Show
+Show
+Show
+Mouse move_script to (356, 77)
+Mouse move_script to (357, 79)
+Show
+Mouse move_script to (360, 82)
+Mouse move_script to (363, 85)
+Show
+Mouse move_script to (368, 89)
+Mouse move_script to (370, 90)
+Show
+Mouse move_script to (374, 92)
+Mouse move_script to (376, 93)
+Show
+Mouse move_script to (379, 96)
+Mouse move_script to (381, 96)
+Show
+Mouse move_script to (384, 99)
+Mouse move_script to (386, 101)
+Show
+Mouse move_script to (386, 102)
+Mouse move_script to (388, 103)
+Show
+Show
+Mouse move_script to (389, 104)
+Show
+Mouse move_script to (390, 105)
+Show
+Mouse move_script to (391, 105)
+Mouse move_script to (392, 105)
+Show
+Mouse move_script to (394, 105)
+Mouse move_script to (398, 103)
+Show
+Mouse move_script to (401, 102)
+Mouse move_script to (404, 100)
+Show
+Mouse move_script to (410, 98)
+Mouse move_script to (412, 97)
+Show
+Mouse move_script to (414, 96)
+Mouse move_script to (415, 94)
+Show
+Mouse move_script to (416, 94)
+Show
+Mouse move_script to (417, 93)
+Show
+Mouse move_script to (418, 93)
+Mouse move_script to (419, 92)
+Show
+Mouse move_script to (421, 91)
+Mouse move_script to (424, 89)
+Show
+Mouse move_script to (425, 88)
+Mouse move_script to (427, 88)
+Show
+Mouse move_script to (428, 87)
+Mouse move_script to (429, 86)
+Show
+Show
+Show
+Mouse move_script to (432, 84)
+Show
+Mouse move_script to (436, 80)
+Show
+Mouse move_script to (442, 76)
+Mouse move_script to (449, 72)
+Mouse move_script to (458, 66)
+Show
+Mouse move_script to (465, 62)
+Mouse move_script to (473, 57)
+Show
+Mouse move_script to (488, 51)
+Mouse move_script to (497, 48)
+Show
+Mouse move_script to (508, 44)
+Mouse move_script to (520, 42)
+Show
+Mouse move_script to (545, 38)
+Mouse move_script to (560, 37)
+Show
+Mouse move_script to (569, 35)
+Mouse move_script to (584, 34)
+Show
+Mouse move_script to (591, 33)
+Mouse move_script to (593, 32)
+Show
+Mouse move_script to (597, 31)
+Show
+Show
+Show
+Mouse move_script to (598, 31)
+Mouse move_script to (598, 30)
+Show
+Mouse move_script to (599, 29)
+Mouse move_script to (601, 28)
+Show
+Mouse move_script to (602, 27)
+Mouse move_script to (603, 27)
+Show
+Mouse move_script to (604, 26)
+Mouse move_script to (605, 25)
+Show
+Mouse move_script to (606, 24)
+Show
+Mouse move_script to (607, 23)
+Show
+Mouse move_script to (607, 22)
+Mouse move_script to (608, 21)
+Mouse move_script to (609, 19)
+Show
+Mouse move_script to (611, 15)
+Mouse move_script to (612, 13)
+Show
+Mouse move_script to (613, 11)
+Mouse move_script to (613, 9)
+Show
+Mouse move_script to (613, 7)
+Mouse move_script to (613, 5)
+Show
+Mouse move_script to (613, 3)
+Mouse move_script to (613, 2)
+Show
+Mouse move_script to (613, 0)
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Show
+Window close button clicked
+Game end

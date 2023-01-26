@@ -1,38 +1,373 @@
 #include "normal_stage.h"
 
-static const bool IS_2P = true;
+bool IS_2P;
+bool LEVEL; // 1 HARD 0 EASY
+// Whether all monsters are cleared.
+bool finish = false;
+static ALLEGRO_SAMPLE_ID effect_id;
+static ALLEGRO_SAMPLE_ID bgm_id;
 
 NORMAL_STAGE::NORMAL_STAGE() {
 	name = "NORMAL_STAGE";
 	map = create_map("Assets/map.txt");
-	// Initialize players
+	// Initialize players and monsters
 	for (int x = 0; x < map->col_num; x++)
 		for (int y = 0; y < map->row_num; y++) {
-			if (is_p1(map, x, y)) {
+			if (is_p1(map, x, y))
 				player1 = new PLAYER(x, y, 2, 2, "p1", map);
-				game_log("Spawn P1 at %d %d", x, y);
-			}
-			else if (is_p2(map, x, y) && IS_2P)
+			if (is_p2(map, x, y))
 				player2 = new PLAYER(x, y, 2, 2, "p2", map);
+			// if (is_big_monster(map, x, y)) {
+			// 	BIG_MONSTER* temp = new BIG_MONSTER(x, y, "big monster", map);
+			// 	big_monsters.emplace_back(temp);
+			// }
+			if (is_crystal(map, x, y)) {
+				CRYSTAL* temp = new CRYSTAL(x, y, 0);
+				crystals.emplace_back(temp);
+			}
 		}
+	if (!IS_2P) player2 = NULL;
+	if (LEVEL == 1) {
+		for (int i = 0; i < HARD_BIG_MONSTER_NUM; i++) {
+			BIG_MONSTER* temp = new BIG_MONSTER("big monster", map);
+			big_monsters.emplace_back(temp);
+		}
+		for (int i = 0; i < HARD_SMALL_MONSTER_NUM; i++) {
+			SMALL_MONSTER* temp = new SMALL_MONSTER("small monster", map);
+			small_monsters.emplace_back(temp);
+		}
+	}
+	else {
+		for (int i = 0; i < EASY_BIG_MONSTER_NUM; i++) {
+			BIG_MONSTER* temp = new BIG_MONSTER("big monster", map);
+			big_monsters.emplace_back(temp);
+		}
+		for (int i = 0; i < EASY_SMALL_MONSTER_NUM; i++) {
+			SMALL_MONSTER* temp = new SMALL_MONSTER("small monster", map);
+			small_monsters.emplace_back(temp);
+		}
+	}
+	// Initialize damping
+	damping = false;
+	dampCNT = 0;
+	dampThreshold = 128; 
+	
+	// Play enter intro
+	stop_bgm(effect_id);
+	effect_id = play_audio(ENTER_INTRO, music_volume);
+
+	// State control
+	state = DISPLAY_PLAYER;
+	counter = 0;
+
+	death_timer1 = al_create_timer(1.0f); // 1 tick / sec
+	al_set_timer_count(death_timer1, 0);
+	death_timer2 = al_create_timer(1.0f); // 1 tick / sec
+	al_set_timer_count(death_timer2, 0);
+	beat_timer = al_create_timer(60.0f / 76);
+	al_set_timer_count(beat_timer, 0);
+	al_start_timer(beat_timer);
 }
 
-SCENE* NORMAL_STAGE::create() {
-	NORMAL_STAGE* temp = new NORMAL_STAGE();
-	return temp;
+NORMAL_STAGE::~NORMAL_STAGE() {
+	// TODO
 }
 
 void NORMAL_STAGE::update() {
-	player1->update();
-	if (IS_2P) player2->update();
+	if (is_exit(map, player1->grid_x, player1->grid_y) && is_exit(map, player2->grid_x, player2->grid_y)) {
+		next_scene = new WIN();
+		stop_bgm(bgm_id);
+	}
+	// Update counter
+	counter++;
+	beatCNT = al_get_timer_count(beat_timer) % 12;
+	// FSM 
+	if (state == DISPLAY_PLAYER && counter >= 274) 
+		state = DISPLAY_MAP; 
+	else if (state == DISPLAY_MAP && counter >= 487) 
+		state = DISPLAY_CRYSTAL;
+	else if (state == DISPLAY_CRYSTAL && counter >= 599)
+		state = DISPLAY_SMALL_MONSTER;
+	else if (state == DISPLAY_SMALL_MONSTER && counter >= 710)
+		state = DISPLAY_BIG_MONSTER;
+	else if (state == DISPLAY_BIG_MONSTER && counter >= 815)
+		state = DISPLAY_START;
+	else if (state == DISPLAY_START && counter >= 978) {
+		state = GAME_PROCEEDING;
+		counter = 0;
+		bgm_id = play_bgm(GAME_BGM, music_volume);
+	}
+	
+	// Game update only when GAME_PROCEEDING
+	if (state == GAME_PROCEEDING) {
+		// Damping process
+		if (damping) {
+			dampCNT += 1;
+			float damped_val = dampedOscillation(10, dampCNT, pi / 16, 0.05);
+			if (dampCNT > dampThreshold)
+				damping = false, dampCNT = 0;
+			map_offset_x = fix_map_offset_x + damped_val;
+			map_offset_y = fix_map_offset_y;
+		}
+		else {
+			map_offset_x = fix_map_offset_x;
+			map_offset_y = fix_map_offset_y;
+		}
+
+		// Ammo update
+		for (int i = 0; i < ammos.size(); i++) {
+			AMMO* ammo = ammos[i];
+			if (ammo->pattern == FIREBALL && ammo->timeCNT == 64) {
+				stop_bgm(effect_id);
+				effect_id = play_audio(SAMSONG_NOTIFICATION_EFFECT, effect_volume / 8);
+				damping = true, dampCNT = 0; // Trigger, and reset damping
+			}
+			ammo->update();
+			bool delete_ammo = false;
+			// If the fireball exploded 
+			if (ammo->pattern == FIREBALL && ammo->timeCNT >= 74)
+				delete_ammo = true;
+			for (int j = 0; j < map->col_num; j++)
+				for (int k = 0; k < map->row_num; k++)
+					if (map->map[k][j] == '#' || is_exit(map, j, k)) // Touches wall to clear
+						delete_ammo |= RecOverlap(get_rec_by_pt_on_board(j, k, 1, 1), ammo->drawrec);
+			if (delete_ammo) {
+				ammos.erase(ammos.begin() + i);
+				i--;
+				delete ammo;
+			}
+		}
+
+		// Crystal update
+		for (auto crystal : crystals) {
+			if (beatCNT == 0)
+				crystal->beatCNT = 0;
+			else
+				crystal->beatCNT = (crystal->beatCNT + 1) % 128;
+			crystal->update();
+		}
+
+		// Small monster update
+		for (auto monster : small_monsters)
+			monster->update();
+
+		// Big monster update
+		for (auto monster : big_monsters) {
+			monster->update();
+			// Chasing strategy update
+			if (al_get_timer_count(death_timer1) > 0 && al_get_timer_count(death_timer2) > 0)
+				monster->next_facing = generatRandomDirection();
+			else if (!IS_2P || al_get_timer_count(death_timer2) > 0)
+				monster->next_facing = A_star(map, monster->grid_w, monster->grid_h, monster->grid_x, monster->grid_y, player1->grid_x, player1->grid_y);
+			else if (al_get_timer_count(death_timer1) > 0)
+				monster->next_facing = A_star(map, monster->grid_w, monster->grid_h, monster->grid_x, monster->grid_y, player2->grid_x, player2->grid_y);
+			else if (EuclideanDistanceSquare(monster->grid_x, monster->grid_y, player1->grid_x, player1->grid_y) <
+				EuclideanDistanceSquare(monster->grid_x, monster->grid_y, player2->grid_x, player2->grid_y))
+				monster->next_facing = A_star(map, monster->grid_w, monster->grid_h, monster->grid_x, monster->grid_y, player1->grid_x, player1->grid_y);
+			else
+				monster->next_facing = A_star(map, monster->grid_w, monster->grid_h, monster->grid_x, monster->grid_y, player2->grid_x, player2->grid_y);
+		}
+
+		// Update ammo collision
+		for (int i = 0; i < ammos.size(); i++) {
+			AMMO* ammo = ammos[i];
+			// Check collision with monster
+			for (int j = 0; j < small_monsters.size(); j++) {
+				SMALL_MONSTER* monster = small_monsters[j];
+				if (RecOverlap(ammo->drawrec, monster->drawrec)) {
+					if (ammo->pattern == FIREBALL)
+						monster->hp -= 30;
+					else
+						monster->hp -= 15;
+					// Delete monster and generate items
+					if (monster->hp <= 0) {
+						// Generate item
+						ITEM* item = new ITEM(monster->drawrec.midx(), monster->drawrec.midy(), monster->drawrec.w / 2, monster->drawrec.h / 2, 0);
+						items.emplace_back(item);
+						// Delete monster
+						small_monsters.erase(small_monsters.begin() + j);
+						j--;
+						delete monster;
+					}
+					ammos.erase(ammos.begin() + i);
+					i--;
+					delete ammo;
+					break;
+				}
+			}
+			for (int j = 0; j < big_monsters.size(); j++) {
+				BIG_MONSTER* monster = big_monsters[j];
+				if (RecOverlap(ammo->drawrec, monster->drawrec)) {
+					if (ammo->pattern == FIREBALL)
+						monster->hp -= 30;
+					else
+						monster->hp -= 15;
+					if (monster->hp <= 0) {
+						// Generate item
+						ITEM* item = new ITEM(monster->drawrec.midx(), monster->drawrec.midy(), monster->drawrec.w / 2, monster->drawrec.h / 2, 0);
+						items.emplace_back(item);
+						// Delete monster
+						big_monsters.erase(big_monsters.begin() + j);
+						j--;
+						delete monster;
+					}
+					ammos.erase(ammos.begin() + i);
+					i--;
+					delete ammo;
+					break;
+				}
+			}
+		}
+
+		/* Player 1 */
+		if (al_get_timer_count(death_timer1) > 0)
+			player1->next_facing = NONE;
+		// Player update
+		player1->update();
+
+		// Update collision with small monsters
+		for (auto monster : small_monsters)
+			if (RecOverlap(player1->drawrec, monster->drawrec))
+				player1->hp -= 1;
+
+		// Update collision with big monster
+		for (auto monster : big_monsters)
+			if (RecOverlap(player1->drawrec, monster->drawrec))
+				player1->hp -= 5;
+
+		if (player1->hp < 0) {
+			al_start_timer(death_timer1);
+			stop_bgm(effect_id);
+			effect_id = play_audio(THE_BRUH_EFFECT, effect_volume);
+		}
+		// Update collision with items
+		for (int i = 0; i < items.size(); i++) {
+			ITEM* item = items[i];
+			if (RecOverlap(item->rec, player1->drawrec)) {
+				player1->mp = fmin(100.0, player1->mp + 20);
+				items.erase(items.begin() + i);
+				i--;
+				delete item;
+			}
+		}
+
+		/* Player 2 */
+		if (al_get_timer_count(death_timer2) > 0)
+			player2->next_facing = NONE;
+		if (IS_2P) {
+			// Player update
+			player2->update();
+
+			// Update collision with small monsters
+			for (auto monster : small_monsters)
+				if (RecOverlap(player2->drawrec, monster->drawrec))
+					player2->hp -= 1;
+
+			// Update collision with big monster
+			for (auto monster : big_monsters)
+				if (RecOverlap(player2->drawrec, monster->drawrec))
+					player2->hp -= 5;
+
+			if (player2->hp < 0) {
+				al_start_timer(death_timer2);
+				stop_bgm(effect_id);
+				effect_id = play_audio(THE_BRUH_EFFECT, effect_volume);
+			}
+
+			for (int i = 0; i < items.size(); i++) {
+				ITEM* item = items[i];
+				if (RecOverlap(item->rec, player2->drawrec)) {
+					player2->mp = fmin(100.0, player2->mp + 20);
+					items.erase(items.begin() + i);
+					i--;
+					delete item;
+				}
+			}
+		}
+
+		if (small_monsters.empty() && big_monsters.empty())
+			finish = true;
+	}
+
+	if (al_get_timer_count(death_timer1) == 5) {
+	    player1->hp = 100;
+		player1->mp = 0;
+		al_stop_timer(death_timer1);
+		al_set_timer_count(death_timer1, 0);
+	}
+	if (al_get_timer_count(death_timer2) == 5) {
+	    player2->hp = 100;
+		player2->mp = 0;
+		al_stop_timer(death_timer2);
+		al_set_timer_count(death_timer2, 0);
+	}
 }
 void NORMAL_STAGE::draw() {
-	draw_map(map);
-	player1->draw();
-	if (IS_2P) player2->draw();
+	if (state == DISPLAY_PLAYER) {
+		player1->draw();
+		if (IS_2P) player2->draw();
+	}
+	if (state == DISPLAY_MAP) {
+		draw_map(map);
+		player1->draw();
+		if (IS_2P) player2->draw();
+	}
+	else if (state == DISPLAY_CRYSTAL) {
+		draw_map(map);
+		player1->draw();
+		if (IS_2P) player2->draw();
+		for (auto crystal : crystals)
+			crystal->draw();
+	}
+	else if (state == DISPLAY_SMALL_MONSTER) {
+		draw_map(map);
+		player1->draw();
+		if (IS_2P) player2->draw();
+		for (auto monster : small_monsters)
+			monster->draw();
+		for (auto crystal : crystals)
+			crystal->draw();
+	}
+	else if (state == DISPLAY_BIG_MONSTER) {
+		draw_map(map);
+		player1->draw();
+		if (IS_2P) player2->draw();
+		for (auto monster : small_monsters)
+			monster->draw();
+		for (auto monster : big_monsters)
+			monster->draw();
+		for (auto crystal : crystals)
+			crystal->draw();
+	}
+	else if (state == DISPLAY_START) {
+		draw_map(map);
+		player1->draw();
+		if (IS_2P) player2->draw();
+		for (auto monster : small_monsters)
+			monster->draw();
+		for (auto monster : big_monsters)
+			monster->draw();
+		for (auto crystal : crystals)
+			crystal->draw();
+	}
+	if (state == GAME_PROCEEDING) {
+		draw_map(map);
+		player1->draw();
+		if (IS_2P) player2->draw();
+		for (auto monster : small_monsters)
+			monster->draw();
+		for (auto monster : big_monsters)
+			monster->draw();
+		for (auto crystal : crystals)
+			crystal->draw();
+		for (auto ammo : ammos)
+			ammo->draw();
+		for (auto item : items)
+			item->draw();
+	}
 }
 
-void NORMAL_STAGE::on_key_down(void) {
+void NORMAL_STAGE::on_key_change(void) {
 	bool up1, down1, left1, right1;
 	up1		= key_down(ALLEGRO_KEY_W);
 	down1	= key_down(ALLEGRO_KEY_S);
@@ -153,8 +488,65 @@ void NORMAL_STAGE::on_key_down(void) {
 				break;
 		}
 	}
-}
-void NORMAL_STAGE::on_key_up(void) {
+	bool bonus = (
+		beatCNT % 16 == 14 ||
+		beatCNT % 16 == 15 ||
+		beatCNT % 16 == 0 ||
+		beatCNT % 16 == 1 ||
+		beatCNT % 16 == 2
+		);
+	if (key_down(ALLEGRO_KEY_SPACE)) {
+		if (al_get_timer_count(death_timer1) == 0) {
+			if (player1->mp >= 20) {
+				int AMMO_NUM = bonus ? 3 : 6;
+				float div_angle = 2 * pi / (float)AMMO_NUM;
+				for (int i = 0; i < AMMO_NUM; i++) {
+					AMMO* temp = AMMO::create(player1->drawrec.midx(), player1->drawrec.midy(), (float)i * div_angle, FIREBALL);
+					ammos.emplace_back(temp);
+				}
+				bool in_range = false;
+				for (auto crystal: crystals) 
+					if (EuclideanDistanceSquare(player1->grid_x, player1->grid_y, crystal->grid_x, crystal->grid_y) < 4) 
+						in_range = true;
+				if (!in_range)
+					player1->mp -= 20;
+			}
+			else {
+				int AMMO_NUM = bonus ? 4 : 8;
+				float div_angle = 2 * pi / (float)AMMO_NUM;
+				for (int i = 0; i < AMMO_NUM; i++) {
+					AMMO* temp = AMMO::create(player1->drawrec.midx(), player1->drawrec.midy(), (float)i * div_angle, SINWAVE);
+					ammos.emplace_back(temp);
+				}
+			}
+		}
+	}
+	if (key_down(ALLEGRO_KEY_ENTER)) {
+		if (al_get_timer_count(death_timer2) == 0) {
+			if (player2->mp >= 20) {
+				int AMMO_NUM = bonus ? 3 : 6;
+				float div_angle = 2 * pi / (float)AMMO_NUM;
+				for (int i = 0; i < AMMO_NUM; i++) {
+					AMMO* temp = AMMO::create(player2->drawrec.midx(), player2->drawrec.midy(), (float)i * div_angle, FIREBALL);
+					ammos.emplace_back(temp);
+				}
+				bool in_range = false;
+				for (auto crystal: crystals) 
+					if (EuclideanDistanceSquare(player2->grid_x, player2->grid_y, crystal->grid_x, crystal->grid_y) < 4) 
+						in_range = true;
+				if (!in_range)
+					player2->mp -= 20;
+			}
+			else {
+				int AMMO_NUM = bonus ? 4 : 8;
+				float div_angle = 2 * pi / (float)AMMO_NUM;
+				for (int i = 0; i < AMMO_NUM; i++) {
+					AMMO* temp = AMMO::create(player2->drawrec.midx(), player2->drawrec.midy(), (float)i * div_angle, SINWAVE);
+					ammos.emplace_back(temp);
+				}
+			}
+		}
+	}
 }
 void NORMAL_STAGE::on_mouse_down(void) {
 }
@@ -164,525 +556,3 @@ void NORMAL_STAGE::on_mouse_up(void) {
 }
 void NORMAL_STAGE::on_mouse_scroll(void) {
 }
-// // [HACKATHON 2-0]
-// // Just modify the GHOST_NUM to 1
-// #define GHOST_NUM 4
-// /* global variables*/
-// extern const uint32_t GAME_TICK_CD;
-// extern uint32_t GAME_TICK;
-// extern ALLEGRO_TIMER* game_tick_timer;
-// ALLEGRO_TIMER* power_up_timer;
-// ALLEGRO_TIMER* super_power_up_timer;
-// ALLEGRO_TIMER* glitch_timer;
-// ALLEGRO_TIMER* flash_timer;
-// ALLEGRO_TIMER* freeze_timer;
-// ALLEGRO_BITMAP* magic;
-// int game_main_Score = 0;
-// bool game_over = false;
-// bool won = 0;
-// bool freeze = 0;
-// extern ALLEGRO_SAMPLE* PACMAN_EAT_GHOST;
-// extern ALLEGRO_SAMPLE* powerupMusic;
-// /* Internal variables*/
-// const int power_up_duration = 10;
-// static Pacman* pman;
-// Map* basic_map;
-// Ghost** ghosts;
-// ALLEGRO_SAMPLE_ID PACMAN_EAT_GHOST_ID;
-// extern ALLEGRO_SAMPLE_ID PACMAN_POWERUP_ID;
-// bool debug_mode = false;
-// bool cheat_mode = false;
-// extern int basic_speed;
-
-// /* Declare static function prototypes */
-// static void init(void);
-// static void step(void);
-// static void checkItem(void);
-// static void status_update(void);
-// static void update(void);
-// static void draw(void);
-// static void printinfo(void);
-// static void destroy(void);
-// static void on_key_down(int key_code);
-// static void on_mouse_down(void);
-// static void render_init_screen(void);
-// static void draw_hitboxes(void);
-// static void draw_freezing_magic(void);
-
-// static void init(void) {
-// 	won = 0;
-// 	magic = al_load_bitmap("Assets/freeze.png");
-
-// 	game_over = false;
-// 	game_main_Score = 0;
-// 	// create map
-// 	//basic_map = create_map(NULL);
-// 	// [TODO]
-// 	// Create map from .txt file and design your own map !!
-// 	//map select
-// 	basic_map = create_map("Assets/map_nthu.txt");
-// 	//basic_map = create_map("Assets/map.txt");
-
-// 	if (!basic_map) {
-// 		game_abort("error on creating map");
-// 	}	
-// 	// create pacman
-// 	pman = pacman_create();
-// 	if (!pman) {
-// 		game_abort("error on creating pacamn\n");
-// 	}
-	
-// 	// allocate ghost memory
-// 	// [HACKATHON 2-1]done
-// 	// TODO: Allocate dynamic memory for ghosts array.
-// 	ghosts = (Ghost**)malloc(sizeof(Ghost*) * GHOST_NUM);
-
-// 	if (!ghosts) {
-// 		game_log("We haven't create any ghosts!\n");
-// 	}
-// 	else {
-// 		// [HACKATHON 2-2]
-// 		// TODO: create a ghost.
-// 		// Try to look the definition of ghost_create and figure out what should be placed here.
-// 		for (int i = 0; i < GHOST_NUM; i++) {
-			
-// 			game_log("creating ghost %d\n", i);
-// 			ghosts[i] = ghost_create(i);  
-// 			if (!ghosts[i])
-// 				game_abort("error creating ghost\n");
-			
-// 		}
-// 	}
-// 	GAME_TICK = 0;
-
-// 	render_init_screen();
-// 	power_up_timer = al_create_timer(1.0f); // 1 tick / sec
-// 	if (!power_up_timer)
-// 		game_abort("Error on create timer\n");
-// 	super_power_up_timer = al_create_timer(1.0f); // 1 tick / sec
-// 	if (!super_power_up_timer)
-// 		game_abort("Error on create timer\n");
-// 	glitch_timer = al_create_timer(1.0f); // 1 tick / sec
-// 	if (!glitch_timer)
-// 		game_abort("Error on create timer\n");
-// 	flash_timer = al_create_timer(0.1f); // 1 tick / sec
-// 	if (!flash_timer)
-// 		game_abort("Error on create timer\n");
-// 	freeze_timer = al_create_timer(0.1f); // 1 tick / sec
-// 	if (!freeze_timer)
-// 		game_abort("Error on create timer\n");
-
-
-// 	return ;
-// }
-
-// static void step(void) {
-// 	if (pman->objData.moveCD > 0)
-// 		pman->objData.moveCD -= pman->speed;
-// 	for (int i = 0; i < GHOST_NUM; i++) {
-// 		// important for movement
-// 		if (ghosts[i]->objData.moveCD > 0)
-// 			ghosts[i]->objData.moveCD -= ghosts[i]->speed;
-// 	}
-// }
-// static void checkItem(void) {
-// 	if (pman->flashing) return;
-// 	int Grid_x = pman->objData.Coord.x, Grid_y = pman->objData.Coord.y;
-// 	if (Grid_y >= basic_map->row_num - 1 || Grid_y <= 0 || Grid_x >= basic_map->col_num - 1 || Grid_x <= 0)
-// 		return;
-// 	// [HACKATHON 1-3]
-// 	// TODO: check which item you are going to eat and use `pacman_eatItem` to deal with it.
-	
-// 	switch ((basic_map->map)[Grid_y][Grid_x])
-// 	{
-// 	case '.':
-// 		pacman_eatItem(pman, basic_map->map[Grid_y][Grid_x]);
-// 		basic_map->map[Grid_y][Grid_x] = ' ';
-// 		game_main_Score += 10;
-// 		basic_map->beansCount--;
-// 		break;
-// 	case 'P':
-// 		pacman_eatItem(pman, basic_map->map[Grid_y][Grid_x]);
-// 		basic_map->map[Grid_y][Grid_x] = ' ';
-// 		break;
-// 	case 'S':
-// 		pacman_eatItem(pman, basic_map->map[Grid_y][Grid_x]);
-// 		basic_map->map[Grid_y][Grid_x] = ' ';
-// 		break;
-// 	case 'F':
-// 		pacman_eatItem(pman, basic_map->map[Grid_y][Grid_x]);
-// 		basic_map->map[Grid_y][Grid_x] = ' ';
-// 		break;
-// 	default:
-// 		break;
-// 	}
-	
-// 	// [HACKTHON 1-4]
-// 	// erase the item you eat from map
-// 	// becareful no erasing the wall block.
-	
-	
-// }
-// static void status_update(void) {
-	
-// 	if (al_get_timer_count(power_up_timer) == power_up_duration) {
-// 	    pman->powerUp = 0;
-// 		al_stop_timer(power_up_timer);
-// 		al_set_timer_count(power_up_timer, 0);
-// 		stop_bgm(PACMAN_POWERUP_ID);
-// 	}
-// 	if (al_get_timer_count(super_power_up_timer) == power_up_duration) {
-// 		pman->op = 0;
-// 		cheat_mode = 0;
-// 		al_stop_timer(super_power_up_timer);
-// 		al_set_timer_count(super_power_up_timer, 0);
-// 	}
-// 	if (al_get_timer_count(glitch_timer) == power_up_duration) {
-// 		pman->glitching = 0;
-// 		pman->speed = basic_speed;
-// 		al_stop_timer(glitch_timer);
-// 		al_set_timer_count(glitch_timer, 0);
-// 	}
-// 	if (al_get_timer_count(flash_timer) == 1) {
-// 		pman->flashing = 0;
-// 		pman->glitching = 0;
-// 		pman->speed = basic_speed;
-// 		cheat_mode = 0;
-// 		al_stop_timer(flash_timer);
-// 		al_set_timer_count(flash_timer, 0);
-// 	}
-// 	if (al_get_timer_count(freeze_timer) == 28) {
-// 		freeze = 0;
-// 		if (!pman->powerUp) 
-// 			for (int i = 0; i < 4; i++) 
-// 				ghosts[i]->frozen = 1,
-// 				ghosts[i]->speed = 1;
-// 		else 
-// 			for (int i = 0; i < 4; i++)
-// 				if (ghosts[i]->reborn)
-// 					ghosts[i]->frozen = 1,
-// 					ghosts[i]->speed = 1;
-// 		if (!pman->op) cheat_mode = 0;
-// 		if (pman->glitching) pman->speed = basic_speed * 2;
-// 		else pman->speed = basic_speed;
-// 	}
-// 	if (al_get_timer_count(freeze_timer) == 100) {
-// 		for (int i = 0; i < 4; i++) 
-// 			ghosts[i]->speed = basic_speed * (2 - (pman->powerUp)) / 2,
-// 			ghosts[i]->frozen = 0;
-// 		al_stop_timer(flash_timer);
-// 		al_set_timer_count(flash_timer, 0);
-// 	}
-	
-// 	for (int i = 0; i < GHOST_NUM; i++) {
-// 		if (ghosts[i]->status == GO_IN) continue;
-// 		// [TODO]
-// 		// use `getDrawArea(..., GAME_TICK_CD)` and `RecAreaOverlap(..., GAME_TICK_CD)` functions to detect
-// 		// if pacman and ghosts collide with each other.
-// 		// And perform corresponding operations.
-// 		// [NOTE]
-// 		// You should have some branch here if you want to implement power bean mode.
-// 		// Uncomment Following Code
-// 		else if(RecAreaOverlap(getDrawArea(pman->objData, GAME_TICK_CD), getDrawArea(ghosts[i]->objData, GAME_TICK_CD)))
-// 		{
-// 			if (ghosts[i]->status == FLEE) {
-// 				ghosts[i]->reborn = 1;
-// 				PACMAN_EAT_GHOST_ID = play_audio(PACMAN_EAT_GHOST, music_volume);
-// 				ghosts[i]->status = GO_IN;
-// 				ghosts[i]->frozen = 0;
-// 				game_main_Score += 200;
-// 			}
-// 			else if (!cheat_mode) {
-// 				game_log("collide with ghost\n");
-// 				al_rest(1.0);
-// 				pacman_die();
-// 				game_over = true;
-// 				break;
-// 			}
-// 		}
-		
-		
-// 	}
-// }
-
-// static void update(void) {
-	
-// 	if (!basic_map->beansCount) {
-// 		won = 1;
-// 		game_over = 1;
-// 		game_log("won\n");
-// 	}
-// 	if (game_over) {
-// 		/*
-// 			[TODO]
-// 			start pman->death_anim_counter and schedule a game-over event (e.g change scene to menu) after Pacman's death animation finished
-// 			game_change_scene(...);
-// 		*/
-	
-// 		al_start_timer(pman->death_anim_counter);
-// 		if (al_get_timer_count(pman->death_anim_counter) == 120) {
-// 				al_stop_timer(pman->death_anim_counter);
-// 				al_set_timer_count(pman->death_anim_counter, 0);
-// 				game_change_scene(scene_gameover_create());
-// 		 }
-
-// 		return;
-// 	}
-
-// 	step();
-// 	checkItem();
-// 	status_update();
-// 	pacman_move(pman, basic_map);
-// 	for (int i = 0; i < GHOST_NUM; i++) 
-// 		ghosts[i]->move_script(ghosts[i], basic_map, pman);
-// }
-
-// static void draw(void) {
-
-// 	al_clear_to_color(al_map_rgb(0, 0, 0));
-
-	
-// 	//	[TODO]
-// 	//	Draw scoreboard, something your may need is sprinf();
-	
-// 	char text[50];
-// 	sprintf_s(text, 50, "Score: %d", game_main_Score);
-// 	al_draw_text(
-// 		menuFont,
-// 		al_map_rgb(255, 255, 255),
-// 		400, 20,
-// 		ALLEGRO_ALIGN_CENTRE,
-// 		text
-// 	);
-	
-// 	if (freeze) 
-// 		draw_freezing_magic();
-	
-// 	if (pman->glitching) {
-// 		al_draw_text(
-// 			menuFont,
-// 			al_map_rgb(255, 255, 255),
-// 			400, 700,
-// 			ALLEGRO_ALIGN_CENTRE,
-// 			"PRESS E TO GLITCH FORWARD"
-// 		);
-// 	}
-		
-// 	draw_map(basic_map);
-
-// 	pacman_draw(pman);
-// 	if (game_over)
-// 		return;
-// 	// no drawing below when game over
-// 	for (int i = 0; i < GHOST_NUM; i++)
-// 		ghost_draw(ghosts[i]);
-	
-// 	//debugging mode
-// 	if (debug_mode) {
-// 		draw_hitboxes();
-// 	}
-
-// }
-
-// static void draw_freezing_magic(void) {
-// 	game_log("drew the magic");
-// 	/*
-// 	#define scale_ratio 16 / 1444
-// 	#define to_rotate_circles 0.5
-// 	#define final_scale 0.5
-// 	#define final_angle (360*to_rotate_circles)
-// 	#define final_enlarge_time 3.2
-// 	#define final_rotate_time 3.2
-// 	*/
-// 	float t = al_get_timer_count(freeze_timer);
-// 	/*float sa = -2 * final_scale / final_enlarge_time / final_enlarge_time * 100;
-// 	float ra = -2 * final_angle / final_rotate_time / final_rotate_time / 100.0;
-// 	float sv = -1 * sa * final_enlarge_time;
-// 	float rv = -1 * ra * final_rotate_time;
-// 	*/
-// 	float cx = al_get_bitmap_width(magic) / 2;
-// 	float cy = al_get_bitmap_height(magic) / 2;
-// 	float dx = pman->objData.Coord.x * 21 + 25 + 10;
-// 	float dy = pman->objData.Coord.y * 21 + 50 + 10;
-// 	/*
-// 	float scale = sv * t + sa * t * t / 2;
-// 	float an/* = rv * t + ra * t * t / 2*//* = t / final_rotate_time / 10 * final_angle;
-// 	float tempan = t / final_rotate_time / 20 * final_angle;
-	
-// 	if (t <= final_enlarge_time*10) {
-// 		al_draw_scaled_rotated_bitmap(
-// 			magic,
-// 			cx, cy, dx, dy,
-// 			scale / scale_ratio, scale / scale_ratio,
-// 			an,
-// 			0
-// 		);
-// 	}
-// 	else if (t <= final_rotate_time) {
-// 		game_log("it's rotating");
-// 		al_draw_scaled_rotated_bitmap(
-// 			magic,
-// 			cx, cy, dx, dy,
-// 			final_scale / scale_ratio, final_scale / scale_ratio,
-// 			45,
-// 			0
-// 		);
-// 	}
-// 	*/
-// 	if (t <= 10) {
-// 		al_draw_scaled_rotated_bitmap(
-// 			magic,
-// 			cx, cy, dx, dy,
-// 			t / 1444 * 16, t / 1444 * 16,
-// 			18 * t,
-// 			0
-// 		);
-// 	}
-// 	else if (t<= 25) {
-// 		al_draw_scaled_rotated_bitmap(
-// 			magic,
-// 			cx, cy, dx, dy,
-// 			(t / 2 + 5) / 1444*16, (t / 2 + 5) / 1444*16,
-// 			t/15 +3,
-// 			0
-// 		);
-// 	}
-// 	else {
-// 		al_draw_scaled_rotated_bitmap(
-// 			magic,
-// 			cx, cy, dx, dy,
-// 			(25 / 2 + 5) / 1444 * 16, (25 / 2 + 5) / 1444 * 16,
-// 			45,
-// 			0
-// 		);
-// 	}
-// }
-
-// static void draw_hitboxes(void) {
-// 	RecArea pmanHB = getDrawArea(pman->objData, GAME_TICK_CD);
-// 	al_draw_rectangle(
-// 		pmanHB.x, pmanHB.y,
-// 		pmanHB.x + pmanHB.w, pmanHB.y + pmanHB.h,
-// 		al_map_rgb_f(1.0, 0.0, 0.0), 2
-// 	);
-
-// 	for (int i = 0; i < GHOST_NUM; i++) {
-// 		RecArea ghostHB = getDrawArea(ghosts[i]->objData, GAME_TICK_CD);
-// 		al_draw_rectangle(
-// 			ghostHB.x, ghostHB.y,
-// 			ghostHB.x + ghostHB.w, ghostHB.y + ghostHB.h,
-// 			al_map_rgb_f(1.0, 0.0, 0.0), 2
-// 		);
-// 	}
-
-// }
-
-// static void printinfo(void) {
-// 	game_log("pacman:\n");
-// 	game_log("coord: %d, %d\n", pman->objData.Coord.x, pman->objData.Coord.y);
-// 	game_log("PreMove: %d\n", pman->objData.preMove);
-// 	game_log("NextTryMove: %d\n", pman->objData.nextTryMove);
-// 	game_log("Speed: %f\n", pman->speed);
-// }
-
-
-// static void destroy(void) {
-// 	/*
-// 		[TODO]
-// 		free map array, Pacman and ghosts
-// 	*/
-// 	freeze = 0;
-// 	al_set_timer_count(freeze_timer, 0);
-// 	delete_map(basic_map);
-// 	pacman_destory(pman);
-// 	for (int i = 0; i<GHOST_NUM; i++) ghost_destory(ghosts[i]);
-// }
-
-// static void on_key_down(int key_code) {
-// 	switch (key_code)
-// 	{
-// 		// [HACKATHON 1-1]	
-// 		// TODO: Use allegro pre-defined enum ALLEGRO_KEY_<KEYNAME> to controll pacman movement
-// 		// we provided you a function `pacman_NextMove` to set the pacman's next move direction.
-		
-// 		case ALLEGRO_KEY_W:
-// 			pacman_NextMove(pman, UP);
-// 			break;
-// 		case ALLEGRO_KEY_A:
-// 			pacman_NextMove(pman, LEFT);
-// 			break;
-// 		case ALLEGRO_KEY_S:
-// 			pacman_NextMove(pman, DOWN);
-// 			break;
-// 		case ALLEGRO_KEY_D:
-// 			pacman_NextMove(pman, RIGHT);
-// 			break;
-// 		case ALLEGRO_KEY_C:
-// 			cheat_mode = !cheat_mode;
-// 			if (cheat_mode)
-// 				printf("cheat mode on\n");
-// 			else 
-// 				printf("cheat mode off\n");
-// 			break;
-// 		case ALLEGRO_KEY_E:
-// 			if (pman->glitching) {
-// 				pman->flashing = 1;
-// 				pman->speed = basic_speed * 16;
-// 				cheat_mode = 1;
-// 				al_stop_timer(flash_timer);
-// 				al_set_timer_count(flash_timer, 0);
-// 				al_start_timer(flash_timer);
-// 				TELEPORT_ID = play_audio(TELEPORT, effect_volume);
-// 			}
-// 			break;
-// 	default:
-// 		break;
-// 	}
-
-// }
-
-// static void on_mouse_down(void) {
-// 	// nothing here
-
-// }
-
-// static void render_init_screen(void) {
-// 	al_clear_to_color(al_map_rgb(0, 0, 0));
-
-// 	draw_map(basic_map);
-// 	pacman_draw(pman);
-// 	for (int i = 0; i < GHOST_NUM; i++) {
-// 		ghost_draw(ghosts[i]);
-// 	}
-
-// 	al_draw_text(
-// 		menuFont,
-// 		al_map_rgb(255, 255, 0),
-// 		400, 400,
-// 		ALLEGRO_ALIGN_CENTER,
-// 		"READY!"
-// 	);
-
-// 	al_flip_display();
-// 	al_rest(2.0);
-
-// }
-// // Functions without 'static', 'extern' prefixes is just a normal
-// // function, they can be accessed by other files using 'extern'.
-// // Define your normal function prototypes below.
-
-// // The only function that is shared across files.
-// Scene scene_main_create(void) {
-// 	Scene scene;
-// 	memset(&scene, 0, sizeof(Scene));
-// 	scene.name = "Start";
-// 	scene.initialize = &init;
-// 	scene.update = &update;
-// 	scene.draw = &draw;
-// 	scene.destroy = &destroy;
-// 	scene.on_key_down = &on_key_down;
-// 	scene.on_mouse_down = &on_mouse_down;
-// 	// TODO: Register more event callback functions such as keyboard, mouse, ...
-// 	game_log("Start scene created");
-// 	return scene;
-// }

@@ -159,24 +159,39 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ammo.cpp" />
+    <ClCompile Include="src\big_monster.cpp" />
+    <ClCompile Include="src\button.cpp" />
+    <ClCompile Include="src\crystal.cpp" />
     <ClCompile Include="src\game_window.cpp" />
+    <ClCompile Include="src\item.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\map.cpp" />
     <ClCompile Include="src\menu.cpp" />
     <ClCompile Include="src\normal_stage.cpp" />
     <ClCompile Include="src\player.cpp" />
     <ClCompile Include="src\shared.cpp" />
+    <ClCompile Include="src\small_monster.cpp" />
     <ClCompile Include="src\utility.cpp" />
+    <ClCompile Include="src\win.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ammo.h" />
+    <ClInclude Include="src\big_monster.h" />
+    <ClInclude Include="src\button.h" />
+    <ClInclude Include="src\constant.h" />
+    <ClInclude Include="src\crystal.h" />
     <ClInclude Include="src\game_window.h" />
+    <ClInclude Include="src\item.h" />
     <ClInclude Include="src\map.h" />
     <ClInclude Include="src\menu.h" />
     <ClInclude Include="src\normal_stage.h" />
     <ClInclude Include="src\player.h" />
     <ClInclude Include="src\scene.h" />
     <ClInclude Include="src\shared.h" />
+    <ClInclude Include="src\small_monster.h" />
     <ClInclude Include="src\utility.h" />
+    <ClInclude Include="src\win.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

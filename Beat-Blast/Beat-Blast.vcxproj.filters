@@ -38,6 +38,27 @@
     <ClCompile Include="src\player.cpp">
       <Filter>資源檔</Filter>
     </ClCompile>
+    <ClCompile Include="src\small_monster.cpp">
+      <Filter>資源檔</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ammo.cpp">
+      <Filter>資源檔</Filter>
+    </ClCompile>
+    <ClCompile Include="src\big_monster.cpp">
+      <Filter>資源檔</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crystal.cpp">
+      <Filter>資源檔</Filter>
+    </ClCompile>
+    <ClCompile Include="src\button.cpp">
+      <Filter>資源檔</Filter>
+    </ClCompile>
+    <ClCompile Include="src\item.cpp">
+      <Filter>資源檔</Filter>
+    </ClCompile>
+    <ClCompile Include="src\win.cpp">
+      <Filter>資源檔</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game_window.h">
@@ -62,6 +83,30 @@
       <Filter>標頭檔</Filter>
     </ClInclude>
     <ClInclude Include="src\player.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="src\small_monster.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ammo.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="src\big_monster.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="src\crystal.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="src\button.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="src\item.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="src\win.h">
+      <Filter>標頭檔</Filter>
+    </ClInclude>
+    <ClInclude Include="src\constant.h">
       <Filter>標頭檔</Filter>
     </ClInclude>
   </ItemGroup>

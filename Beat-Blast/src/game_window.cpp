@@ -1,12 +1,4 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <stdio.h>
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_ttf.h>
-#include <allegro5/allegro_audio.h>
-#include <allegro5/allegro_acodec.h>
 #include "game_window.h"
 #include "menu.h"
 
@@ -44,7 +36,7 @@ GAME_WINDOW::GAME_WINDOW() {
 	flip_timer	= NULL;
 	tick_timer	= NULL;
 	event_queue = NULL;
-	current_scene = MENU::create(); // First scene will be menu.
+	current_scene = new MENU(); // First scene will be menu.
 	game_done = false;	
 }
 
@@ -71,8 +63,8 @@ void GAME_WINDOW::game_init() {
 	game_log("Game initialized");
 	
 	// First scene
-	game_change_scene(MENU::create());
-
+	game_change_scene(new MENU());
+	
 	// Draw the first frame.
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	current_scene->draw();
@@ -166,7 +158,7 @@ void GAME_WINDOW::event_loop() {
 		al_wait_for_event(event_queue, &event);
 		if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
 			// Event for clicking the window close button.
-			game_log("Window close button clicked");
+			//game_log("Window close button clicked");
 			game_done = true;
 		}
 		else if (event.type == ALLEGRO_EVENT_TIMER) {
@@ -187,44 +179,44 @@ void GAME_WINDOW::event_loop() {
 		}
 		else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
 			// Event for keyboard key down.
-			game_log("Key with keycode %d down", event.keyboard.keycode);
+			//game_log("Key with keycode %d down", event.keyboard.keycode);
 			if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE && current_scene->name == "MENU") {
 				game_log("Escape clicked");
 				game_done = true;
 				continue;
 			}
 			al_get_keyboard_state(&key_state);
-			current_scene->on_key_down();
+			current_scene->on_key_change();
 		}
 		else if (event.type == ALLEGRO_EVENT_KEY_UP) {
 			// Event for keyboard key up.
-			game_log("Key with keycode %d up", event.keyboard.keycode);
+			//game_log("Key with keycode %d up", event.keyboard.keycode);
 			al_get_keyboard_state(&key_state);
-			current_scene->on_key_down();
+			current_scene->on_key_change();
 		}
 		else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
 			// Event for mouse key down.
-			game_log("Mouse button %d down at (%d, %d)", event.mouse.button, event.mouse.x, event.mouse.y);
+			//game_log("Mouse button %d down at (%d, %d)", event.mouse.button, event.mouse.x, event.mouse.y);
 			mouse_state[event.mouse.button] = true;
 			current_scene->on_mouse_down();
 		}
 		else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
 			// Event for mouse key up.
-			game_log("Mouse button %d up at (%d, %d)", event.mouse.button, event.mouse.x, event.mouse.y);
+			//game_log("Mouse button %d up at (%d, %d)", event.mouse.button, event.mouse.x, event.mouse.y);
 			mouse_state[event.mouse.button] = false;
 			current_scene->on_mouse_up();
 		}
 		else if (event.type == ALLEGRO_EVENT_MOUSE_AXES) {
 			if (event.mouse.dx != 0 || event.mouse.dy != 0) {
 				// Event for mouse move_script.
-				game_log("Mouse move_script to (%d, %d)", event.mouse.x, event.mouse.y);
+				//game_log("Mouse move_script to (%d, %d)", event.mouse.x, event.mouse.y);
 				mouse_x = event.mouse.x;
 				mouse_y = event.mouse.y;
 				current_scene->on_mouse_move();
 			}
 			else if (event.mouse.dz != 0) {
 				// Event for mouse scroll.
-				game_log("Mouse scroll at (%d, %d) with delta %d", event.mouse.x, event.mouse.y, event.mouse.dz);
+				//game_log("Mouse scroll at (%d, %d) with delta %d", event.mouse.x, event.mouse.y, event.mouse.dz);
 				current_scene->on_mouse_scroll();
 			}
 		}

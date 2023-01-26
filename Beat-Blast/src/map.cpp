@@ -1,18 +1,8 @@
-#define _CRT_SECURE_NO_WARNINGS
-#include <string>
-#include <iostream>
-#include <allegro5/allegro_primitives.h>
 #include "game_window.h"
 #include "map.h"
 
-#define QUEUE_SIZE 3000
-
-const int four_probe[4][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
 extern uint32_t GAME_TICK;
 extern uint32_t SLOWER_GAME_TICK;
-/* Declare static function prototypes. */
-static void draw_wall_index(Map* M, int row, int col);
-static void draw_exit_index(Map* M, int row, int col);
 
 float dx, dy;
 
@@ -89,7 +79,7 @@ Map* create_map(const char * filepath) {
 		}
 	}
 
-	M->wallnum = M->beansCount = 0;
+	M->wallnum = 0;
 
 	for (int i = 0; i < M->row_num; i++) {
 		for (int j = 0; j < M->col_num; j++) {
@@ -102,7 +92,6 @@ Map* create_map(const char * filepath) {
 				M->wallnum++;
 				break;
 			case '.':
-				M->beansCount++;
 				break;
 			default:
 				break;
@@ -111,7 +100,6 @@ Map* create_map(const char * filepath) {
 		if(filepath != NULL)
 			getc(pFile);
 	}
-	M->beansNum = M->beansCount;
 	return M;
 }
 
@@ -124,6 +112,7 @@ void delete_map(Map* M) {
 }
 
 void draw_map(Map* M) {
+	al_clear_to_color(al_map_rgb(0, 0, 0));
 	if (M == NULL) {
 		game_abort("error map!\n");
 		return;
@@ -134,10 +123,17 @@ void draw_map(Map* M) {
 				case '#':
 					draw_wall_index(M, row, col);
 					break;
+				case 'X':
+					draw_wall_index(M, row, col);
+					break;
 				case 'E':
 					draw_exit_index(M, row, col);
 					break;
+				case '_':
+					draw_board_index(M, row, col);
+					break;
 				default:
+					draw_ground_index(M, row, col);
 					break;
 			}
 		}
@@ -145,20 +141,100 @@ void draw_map(Map* M) {
 }
 
 static void draw_wall_index(Map* M, const int row, const int col) {
-    int s_x, s_y, e_x, e_y, dw;
     int block_x = map_offset_x + block_width * col;
     int block_y = map_offset_y + block_height * row;
+	
+	float sp_w = al_get_bitmap_width(stone_brick);
+    float sp_h = al_get_bitmap_height(stone_brick);
 
-    dw = block_width;
-    s_x = block_x;
-    s_y = block_y;
-    e_x = s_x + dw;
-    e_y = s_y + dw;
+    al_draw_scaled_bitmap(
+        stone_brick,
+        0, 0,
+        sp_w, sp_h,
+        block_x, block_y,
+        block_width, block_height,
+        0
+    );
 
-    al_draw_filled_rectangle(s_x, s_y, e_x, e_y, al_map_rgb(50, 50, 50));
+    // al_draw_filled_rectangle(s_x, s_y, e_x, e_y, al_map_rgb(40, 40, 40));
 }
+
+extern bool finish;
 
 static void draw_exit_index(Map* M, const int row, const int col) {
+    // int s_x, s_y, e_x, e_y, dw;
+    // int block_x = map_offset_x + block_width * col;
+    // int block_y = map_offset_y + block_height * row;
+
+    // dw = block_width;
+    // s_x = block_x;
+    // s_y = block_y;
+    // e_x = s_x + dw;
+    // e_y = s_y + dw;
+	// if (finish)
+    // 	al_draw_filled_rectangle(s_x, s_y, e_x, e_y, al_map_rgb(200, 200, 100));
+	// else
+    // 	al_draw_filled_rectangle(s_x, s_y, e_x, e_y, al_map_rgb(40, 40, 40));
+	int block_x = map_offset_x + block_width * col;
+	int block_y = map_offset_y + block_height * row;
+	if (finish) {
+		float sp_w = al_get_bitmap_width(exit_block);
+		float sp_h = al_get_bitmap_height(exit_block);
+
+		al_draw_scaled_bitmap(
+			exit_block,
+			0, 0,
+			sp_w, sp_h,
+			block_x, block_y,
+			block_width, block_height,
+			0
+		);
+	}
+	else {
+		float sp_w = al_get_bitmap_width(stone_brick);
+		float sp_h = al_get_bitmap_height(stone_brick);
+
+		al_draw_scaled_bitmap(
+			stone_brick,
+			0, 0,
+			sp_w, sp_h,
+			block_x, block_y,
+			block_width, block_height,
+			0
+		);
+	}
+}
+
+static void draw_ground_index(Map* M, const int row, const int col) {
+    // int s_x, s_y, e_x, e_y, dw;
+    // int block_x = map_offset_x + block_width * col;
+    // int block_y = map_offset_y + block_height * row;
+
+    // dw = block_width;
+    // s_x = block_x;
+    // s_y = block_y;
+    // e_x = s_x + dw;
+    // e_y = s_y + dw;
+
+    // al_draw_filled_rectangle(s_x, s_y, e_x, e_y, al_map_rgb(70, 70, 70));
+	int block_x = map_offset_x + block_width * col;
+    int block_y = map_offset_y + block_height * row;
+	
+	float sp_w = al_get_bitmap_width(stone_ground);
+    float sp_h = al_get_bitmap_height(stone_ground);
+
+    al_draw_scaled_bitmap(
+        stone_ground,
+        0, 0,
+        sp_w, sp_h,
+        block_x, block_y,
+        block_width, block_height,
+        0
+    );
+}
+
+
+static void draw_board_index(Map* M, const int row, const int col) {
     int s_x, s_y, e_x, e_y, dw;
     int block_x = map_offset_x + block_width * col;
     int block_y = map_offset_y + block_height * row;
@@ -169,69 +245,5 @@ static void draw_exit_index(Map* M, const int row, const int col) {
     e_x = s_x + dw;
     e_y = s_y + dw;
 
-    al_draw_filled_rectangle(s_x, s_y, e_x, e_y, al_map_rgb(50, 100, 100));
-}
-
-// static void draw_bean(Map* M, const int row, const int col) {
-// 	if (GAME_TICK > 32) al_draw_filled_circle(map_offset_x + col * block_width + block_width / 2.0, map_offset_y + row * block_height + block_height / 2.0, block_width/6.0,  al_map_rgb(234, 38, 38));
-// }
-
-Directions shortest_path_direc(Map* M, int startGridx, int startGridy, int endGridx, int endGridy) {
-    static int8_t queue_x[QUEUE_SIZE];
-    static int8_t queue_y[QUEUE_SIZE];
-    static	uint16_t front;
-    static	uint16_t end;
-
-	static Directions steped[MAX_WALL_NUM_H][MAX_WALL_NUM_W];
-	memset(steped, 0, sizeof(steped)); // set as NONE;
-
-	front = end = 0;
-	queue_x[end] = startGridx;
-	queue_y[end] = startGridy;
-	steped[startGridy][startGridx] = UP; /*	for dummy just means that startGrid have been visited.	*/ 
-
-	end++;
-
-	for (size_t i = 0; i < 4; i++) {
-		int8_t x = queue_x[front] + four_probe[i][0];
-		int8_t y = queue_y[front] + four_probe[i][1];
-		if (is_wall(M, x, y) || steped[y][x])
-			continue;
-		queue_x[end] = x;
-		queue_y[end] = y;
-		switch (i) {
-			case 0:
-				steped[y][x] = RIGHT;
-				break;
-			case 1:
-				steped[y][x] = DOWN;
-				break;
-			case 2:
-				steped[y][x] = LEFT;
-				break;
-			case 3:
-				steped[y][x] = UP;
-				break;
-			default:
-				break;
-		}
-		end++;
-	}
-	front++;
-
-	while (front != end && steped[endGridy][endGridx] == NONE) {
-
-		for (size_t i = 0; i < 4; i++) {
-			int8_t x = queue_x[front] + four_probe[i][0];
-			int8_t y = queue_y[front] + four_probe[i][1];
-			if (is_wall(M, x, y) || steped[y][x])
-				continue;
-			queue_x[end] = x;
-			queue_y[end] = y;
-			steped[y][x] = steped[queue_y[front]][queue_x[front]];
-			end++;
-		}
-		front++;
-	}
-	return steped[endGridy][endGridx];
+    al_draw_filled_rectangle(s_x, s_y, e_x, e_y, al_map_rgb(0, 0, 0));
 }

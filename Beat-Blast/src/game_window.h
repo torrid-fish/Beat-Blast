@@ -1,10 +1,9 @@
 #define _CRT_SECURE_NO_WARNINGS
 #ifndef GAME_WINDOW_H
 #define GAME_WINDOW_H
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_font.h>	
-#include <string>
+#include "utility.h"
 #include "scene.h"
+
 using namespace std;
 #define LOG_ENABLED
 

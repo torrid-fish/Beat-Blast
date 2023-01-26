@@ -1,17 +1,10 @@
 #include "utility.h"
 #include "game_window.h"
-#include <math.h>
-#include <stdlib.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_font.h>
-#include <allegro5/allegro_audio.h>
-const int GridSize = 22;
-const int block_width = 21,  block_height = 21;			// the pixel size of a "block"
-const int map_offset_x = 25, map_offset_y = 50;			// pixel offset of where to start draw map
+int GridSize = 22;
+int block_width = 21,  block_height = 21;			// the pixel size of a "block"
+int fix_map_offset_x = 25, fix_map_offset_y = 50;	// fix value
+int map_offset_x = 25, map_offset_y = 50;			// this value might be changed by damping
 float VOLUME = 1.0;
-extern const int map_offset_x;
-extern const int map_offset_y;
-extern const int block_width, block_height;
 ALLEGRO_SAMPLE* load_audio(const char* filename) {
 	ALLEGRO_SAMPLE* sample = al_load_sample(filename);
 	if (!sample)
@@ -78,7 +71,7 @@ ALLEGRO_BITMAP* load_bitmap_resized(const char* filename, int w, int h) {
 }
 
 bool pt_in_rect(int px, int py, RECTANGLE field) {
-	if (field.x <= px && field.x + field.w >= px && field.y <= py && field.y + field.h >= py)return 1;
+	if (field.x <= px && field.x + field.w >= px && field.y <= py && field.y + field.h >= py) return 1;
 	else return 0;
 }
 
@@ -145,6 +138,10 @@ RECTANGLE getDrawArea(RECTANGLE rec, int moveCD, Directions facing, uint32_t TOT
 	return target;	
 }
 
+float dampedOscillation(float A0, float time, float angular_freq, float alpha) {
+	return A0 * exp(-alpha * time) * cos(angular_freq * time);
+}
+
 void printRecInfo(const RECTANGLE* RA) {
 	game_log("RecArea info: \nx: %f, y: %f, w: %f, h: %f\n",
 		RA->x, RA->y, RA->w, RA->h);
@@ -193,6 +190,114 @@ bool bernoulliTrail(double p) {
 	return generateRandomFloat() < p;
 }
 
+pair<float, float> Rotation2D(float x, float y, float angle) {
+	return make_pair(cos(angle) * x - sin(angle) * y, sin(angle) * x + cos(angle) * y);
+}
+
+int ChebyshevDistance(int grid_x_start, int grid_y_start, int grid_x_end, int grid_y_end) {
+	return 
+		max(
+			abs(grid_x_start - grid_x_end),
+			abs(grid_y_start - grid_y_end)
+		);
+}
+
+int EuclideanDistanceSquare(int grid_x_start, int grid_y_start, int grid_x_end, int grid_y_end) {
+	return (grid_x_start - grid_x_end) * (grid_x_start - grid_x_end) + (grid_y_start - grid_y_end) * (grid_y_start - grid_y_end);
+}
+
+Directions A_star(Map* M, int grid_w, int grid_h, int grid_x_start, int grid_y_start, int grid_x_end, int grid_y_end) {
+	using T = tuple<int, int, int>; // T: (f(n), x, y)
+	int row = M->row_num, col = M->col_num;
+	int dir[8][2] = {
+	{ 0,-1},	// UP
+	{-1, 0},	// LEFT
+	{-1, -1},	// UP_LEFT
+	{1, -1},	// UP_RIGHT
+	{-1, 1},	// DOWN_LEFT
+	{1, 1},		// DOWN_RIGHT
+	{ 1, 0},	// RIGHT
+	{ 0, 1},	// DOWN 
+	};
+	Directions direction[8] = {
+		UP,
+		LEFT,
+		UP_LEFT,
+		UP_RIGHT,
+		DOWN_LEFT,
+		DOWN_RIGHT,
+		RIGHT,
+		DOWN
+	};
+	priority_queue<T, vector<T>, greater<T>> todo;
+	vector<vector<bool>> vis(row, vector<bool>(col, false));
+	vector<vector<int>> dis(row, vector<int>(col, 0));
+	// Search from end to start then return direction
+	vis[grid_y_end][grid_x_end] = true;
+	todo.emplace(0, grid_x_end, grid_y_end);
+	// A* algorithm
+	Directions ans;
+	while (!todo.empty()) {
+		int f, x, y;
+		tie(f, x, y) = todo.top(); todo.pop();
+		// Search
+		for (int i = 0; i < 8; i++) {
+			if (movable(x, y, grid_w, grid_h, M, direction[i])) {
+				int next_x = x + dir[i][0];
+				int next_y = y + dir[i][1];
+				if (!vis[next_y][next_x]) {
+					if (next_x == grid_x_start && next_y == grid_y_start) {
+						// Find first dirction from end to start, we reverse it
+						return direction[7 - i];
+					}
+					dis[next_y][next_x] = dis[y][x] + 1;
+					vis[next_y][next_x] = true;
+					// f(n) = g(n) + h(n)
+					int new_f = dis[next_y][next_x];//ChebyshevDistance(next_x, next_y, grid_x_start, grid_y_start);
+					todo.emplace(new_f, next_x, next_y);
+				}
+			}
+		}
+	}
+	// There is no such path
+	return generatRandomDirection();
+}
+
+Directions generatRandomDirection(void) {
+	switch (generateRandomNumber(0, 8)) {
+	case 0:		return UP;
+	case 1:		return LEFT;
+	case 2:		return RIGHT;
+	case 3:		return DOWN;
+	case 4:		return UP_LEFT;
+	case 5:		return DOWN_LEFT;
+	case 6:		return DOWN_RIGHT;
+	case 7:		return UP_RIGHT;
+	}
+}
+
+pair<int, int> generateRandomSpawnGridPoint(Map* map, int grid_w, int grid_h) {
+	int grid_x, grid_y;
+	while (true) {
+		grid_x = generateRandomNumber(0, map->col_num);
+		grid_y = generateRandomNumber(0, map->row_num);
+		if (movable(grid_x, grid_y, grid_w, grid_h, map, NONE) &&
+			!(is_wall(map, grid_x, grid_y) ||
+			is_exit(map, grid_x, grid_y) ||
+			is_outside(map, grid_x, grid_y) ||
+			is_boss(map, grid_x, grid_y) ||
+			is_small_monster(map, grid_x, grid_y) ||
+			is_big_monster(map, grid_x, grid_y) ||
+			is_crystal(map, grid_x, grid_y) ||
+			is_p1(map, grid_x, grid_y) ||
+			is_p2(map, grid_x, grid_y)))
+			break;
+	}
+	return make_pair(grid_x, grid_y);
+}
+
+extern bool finish;
+
 bool movable(int grid_x, int grid_y, int grid_w, int grid_h, Map* M, Directions facing) {
 	switch (facing) {
 		case UP:
@@ -227,17 +332,17 @@ bool movable(int grid_x, int grid_y, int grid_w, int grid_h, Map* M, Directions 
 			break;
 	}
 	bool res = true;
+	int row = M->row_num, col = M->col_num;
 	for (int i = 0; i < grid_w; i++)
 		for (int j = 0; j < grid_h; j++)
-			res &= !is_wall(M, grid_x + i, grid_y + j);
+			res &= !(is_wall(M, grid_x + i, grid_y + j) || is_outside(M, grid_x + i, grid_y + j) || is_exit(M, grid_x + i, grid_y + j) && !finish || grid_x + i < 0 || grid_x + i >= col || grid_y + j < 0 || grid_y + j >= row);
 	return res;
 }
 
 bool is_wall(Map* M, int index_x, int index_y) {
-	game_log("is wall %d %d", index_x, index_y);
 	if (index_x < 0 || index_x >= M->col_num || index_y < 0 || index_y >= M->row_num)
 		return true;
-	return M->map[index_y][index_x] == '#';
+	return M->map[index_y][index_x] == '#' || M->map[index_y][index_x] == 'X'; // X is inside wall, # is margin
 }
 bool is_exit(Map* M, int index_x, int index_y) {
 	if (index_x < 0 || index_x >= M->col_num || index_y < 0 || index_y >= M->row_num)
@@ -249,12 +354,17 @@ bool is_boss(Map* M, int index_x, int index_y) {
 		return false;
 	return M->map[index_y][index_x] == 'B';
 }
-bool is_mini_monster(Map* M, int index_x, int index_y) {
+bool is_outside(Map* M, int index_x, int index_y) {
+	if (index_x < 0 || index_x >= M->col_num || index_y < 0 || index_y >= M->row_num)
+		return false;
+	return M->map[index_y][index_x] == '_';
+}
+bool is_small_monster(Map* M, int index_x, int index_y) {
 	if (index_x < 0 || index_x >= M->col_num || index_y < 0 || index_y >= M->row_num)
 		return false;
 	return M->map[index_y][index_x] == 'm';
 }
-bool is_mega_monster(Map* M, int index_x, int index_y) {
+bool is_big_monster(Map* M, int index_x, int index_y) {
 	if (index_x < 0 || index_x >= M->col_num || index_y < 0 || index_y >= M->row_num)
 		return false;
 	return M->map[index_y][index_x] == 'M';

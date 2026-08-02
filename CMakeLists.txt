@@ -55,44 +55,72 @@ if(UNIX AND NOT APPLE)
     set(CMAKE_INSTALL_RPATH "$ORIGIN/lib")
 endif()
 
-# Pick up Allegro either from an installed AllegroConfig.cmake (vcpkg, custom build)
-# or via pkg-config (apt / system package manager).
-find_package(Allegro 5.2 CONFIG QUIET)
+# Pick up Allegro via one of two routes:
+#   1. pkg-config (system Allegro on Linux distros). Preferred on Linux
+#      because Ubuntu/Debian's AllegroConfig.cmake exports target names that
+#      differ from upstream and would silently produce an empty link list.
+#   2. AllegroConfig.cmake (vcpkg on Windows). Used when pkg-config is not
+#      available or finds nothing.
+#
+# After this block, _BB_LINK_TARGETS holds the CMake targets / imported
+# targets we will pass to target_link_libraries. We FATAL_ERROR if it ends
+# up empty so the link step can never silently lose Allegro.
 
-if(Allegro_FOUND)
-    message(STATUS "Found Allegro via cmake config (Allegro_DIR=${Allegro_DIR})")
-    set(_bb_allegro_targets
-        allegro
-        allegro_image
-        allegro_font
-        allegro_ttf
-        allegro_primitives
-        allegro_audio
-        allegro_acodec
-        allegro_native_dialog
+set(_BB_LINK_TARGETS "")
+
+# Route 1: pkg-config. Ubuntu/Debian ships these module names with the -5
+# suffix (allegro-5.pc, allegro_image-5.pc, ...).
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+    pkg_check_modules(_bb_allegro QUIET
+        allegro-5
+        allegro_image-5
+        allegro_font-5
+        allegro_ttf-5
+        allegro_primitives-5
+        allegro_audio-5
+        allegro_acodec-5
+        allegro_dialog-5
     )
-    set(_bb_link_libs "")
-    foreach(_t IN LISTS _bb_allegro_targets)
-        if(TARGET ${_t})
-            list(APPEND _bb_link_libs ${_t})
-        endif()
-    endforeach()
-    target_link_libraries(BeatBlast PRIVATE ${_bb_link_libs})
-else()
-    message(STATUS "AllegroConfig not found; falling back to pkg-config.")
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(ALLEGRO REQUIRED IMPORTED_TARGET
-        allegro
-        allegro_image
-        allegro_font
-        allegro_ttf
-        allegro_primitives
-        allegro_audio
-        allegro_acodec
-        allegro_native_dialog
-    )
-    target_link_libraries(BeatBlast PRIVATE PkgConfig::ALLEGRO)
+    if(_bb_allegro_FOUND)
+        message(STATUS "Found Allegro via pkg-config (modules: ${_bb_allegro_MODULES})")
+        list(APPEND _BB_LINK_TARGETS PkgConfig::_bb_allegro)
+    endif()
 endif()
+
+# Route 2: AllegroConfig.cmake (vcpkg, custom install, etc.)
+if(NOT _BB_LINK_TARGETS)
+    find_package(Allegro 5.2 CONFIG QUIET)
+    if(Allegro_FOUND)
+        message(STATUS "Found Allegro via cmake config (Allegro_DIR=${Allegro_DIR})")
+        # Try every plausible target naming convention Allegro has shipped
+        # (un-namespaced lowercase, Allegro:: namespaced, allegro:: namespaced).
+        set(_bb_cmake_candidates
+            allegro allegro_image allegro_font allegro_ttf
+            allegro_primitives allegro_audio allegro_acodec allegro_native_dialog
+            Allegro::Allegro Allegro::Image Allegro::Font Allegro::TTF
+            Allegro::Primitives Allegro::Audio Allegro::Acodec Allegro::NativeDialog
+            allegro::allegro allegro::image allegro::font allegro::ttf
+            allegro::primitives allegro::audio allegro::acodec allegro::native_dialog
+        )
+        foreach(_t IN LISTS _bb_cmake_candidates)
+            if(TARGET ${_t})
+                list(APPEND _BB_LINK_TARGETS ${_t})
+            endif()
+        endforeach()
+    endif()
+endif()
+
+if(NOT _BB_LINK_TARGETS)
+    message(FATAL_ERROR
+        "Allegro 5 was not found via either pkg-config or AllegroConfig.cmake.\n"
+        "On Ubuntu install: liballegro5-dev liballegro-image5-dev liballegro-ttf5-dev "
+        "liballegro-audio5-dev liballegro-acodec5-dev liballegro-dialog5-dev\n"
+        "On Windows use vcpkg with the allegro5 port.")
+endif()
+
+message(STATUS "Linking BeatBlast against: ${_BB_LINK_TARGETS}")
+target_link_libraries(BeatBlast PRIVATE ${_BB_LINK_TARGETS})
 
 # Distribution layout:
 #   install_prefix/BeatBlast          <- the executable

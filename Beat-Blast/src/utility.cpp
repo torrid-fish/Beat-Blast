@@ -416,15 +416,18 @@ void game_log(const char* format, ...) {
 static void game_vlog(const char* format, va_list arg) {
 #ifdef LOG_ENABLED
 	static bool clear_file = true;
+	va_list file_arg;
+	va_copy(file_arg, arg);
 	vprintf(format, arg);
 	printf("\n");
 	// Write log to file for later debugging.
 	FILE* pFile = fopen("log.txt", clear_file ? "w" : "a");
 	if (pFile) {
-		vfprintf(pFile, format, arg);
+		vfprintf(pFile, format, file_arg);
 		fprintf(pFile, "\n");
 		fclose(pFile);
 	}
+	va_end(file_arg);
 	clear_file = false;
 #endif
 }

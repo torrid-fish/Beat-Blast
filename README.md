@@ -33,5 +33,5 @@
 
 ## 概念圖
 <div align="center">
-<img src="./Beat-Blast/Assets/概念圖.png"/>
+<img src="./Beat-Blast/Assets/concept_diagram.png"/>
 </div>

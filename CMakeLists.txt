@@ -49,10 +49,24 @@ else()
     target_compile_options(BeatBlast PRIVATE -Wall -Wno-unknown-pragmas -Wno-unused-parameter)
 endif()
 
-# Linux: tell the linker to find bundled .so files in lib/ next to the binary.
+# Linux: tell the linker to find bundled .so files in lib/ next to the
+# binary. We use $ORIGIN so the bundle is relocatable. We set this via
+# explicit link options because CMake's CMAKE_BUILD_RPATH variable has
+# historically been unreliable across generators -- emitting rpath via
+# the linker is unambiguous.
 if(UNIX AND NOT APPLE)
-    set(CMAKE_BUILD_RPATH "$ORIGIN/lib")
-    set(CMAKE_INSTALL_RPATH "$ORIGIN/lib")
+    target_link_options(BeatBlast PRIVATE
+        # Use old-style RPATH (not RUNPATH). RPATH propagates to transitive
+        # .so lookups, so liballegro_acodec.so's dependency on libdumb.so.1
+        # is resolved via the loading binary's RPATH. With RUNPATH (the
+        # modern default), only direct deps of the loading object are looked
+        # up via the object's RUNPATH; transitive deps fall back to the
+        # global ldconfig cache, which won't see our bundled lib/ folder.
+        "LINKER:--disable-new-dtags,-rpath,\$ORIGIN/lib"
+        # Allow ld to resolve transitive deps of the Allegro .so files
+        # during link even when they aren't on the default search path.
+        "LINKER:-rpath-link,${CMAKE_CURRENT_SOURCE_DIR}/Beat-Blast/lib"
+    )
 endif()
 
 # Pick up Allegro via one of two routes:
@@ -72,7 +86,7 @@ set(_BB_LINK_TARGETS "")
 # suffix (allegro-5.pc, allegro_image-5.pc, ...).
 find_package(PkgConfig QUIET)
 if(PkgConfig_FOUND)
-    pkg_check_modules(_bb_allegro QUIET
+    pkg_check_modules(_bb_allegro QUIET IMPORTED_TARGET
         allegro-5
         allegro_image-5
         allegro_font-5
@@ -84,6 +98,8 @@ if(PkgConfig_FOUND)
     )
     if(_bb_allegro_FOUND)
         message(STATUS "Found Allegro via pkg-config (modules: ${_bb_allegro_MODULES})")
+        # IMPORTED_TARGET makes CMake synthesize PkgConfig::<prefix> imported
+        # targets that carry the libs/include dirs/link flags from pkg-config.
         list(APPEND _BB_LINK_TARGETS PkgConfig::_bb_allegro)
     endif()
 endif()

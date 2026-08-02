@@ -29,13 +29,22 @@ jobs:
       - name: Install Allegro dev packages
         run: |
           sudo apt-get update
-          # On Ubuntu 24.04 (noble) Allegro 5 is split across several -dev
-          # packages. liballegro5-dev ships the core + color + font + main +
-          # memfile + primitives add-ons, and Recommends the rest. We install
-          # the rest explicitly so the build still works even under
-          # --no-install-recommends. The liballegro-<font|primitives|main>5-dev
-          # packages don't exist on noble because those add-ons are bundled
-          # into liballegro5-dev itself.
+          # Allegro 5 on Ubuntu 24.04 (noble) is split across several -dev
+          # packages. `liballegro5-dev` ships core + color + font + main +
+          # memfile + primitives add-ons, and Recommends the remaining
+          # addon -dev packages. We install them explicitly so the build is
+          # robust against --no-install-recommends and breakages in apt's
+          # recommends chain.
+          #
+          # The split `liballegro-<font|primitives|main>5-dev` packages do
+          # NOT exist on noble: those add-ons are bundled into liballegro5-dev
+          # itself (confirmed via packages.ubuntu.com noble file list).
+          #
+          # libdumb1-dev + libopusfile-dev are transitive runtime deps of
+          # liballegro_acodec — install them so the link step finds `dumb_*`
+          # and `op_*` symbols without warnings.
+          # Runtime libs libdumb1t64 + libopusfile0 are bundled in lib/ in the
+          # staging step below, so they must be present at build time too.
           sudo apt-get install -y \
             build-essential \
             cmake \
@@ -47,7 +56,9 @@ jobs:
             liballegro-ttf5-dev \
             liballegro-audio5-dev \
             liballegro-acodec5-dev \
-            liballegro-dialog5-dev
+            liballegro-dialog5-dev \
+            libdumb1-dev \
+            libopusfile-dev
 
       - name: Configure
         run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
@@ -69,7 +80,12 @@ jobs:
           cp -r Beat-Blast/Assets "$STAGE/"
 
           # Resolve and copy non-system .so dependencies into lib/.
-          # Skip core C runtime / system libs to keep the bundle small.
+          # Bundle EVERY Allegro transitive dep (freetype, fontconfig,
+          # harfbuzz, pango, glib, png, jpeg, webp, dumb, opus, opusfile,
+          # vorbis, ogg, flac, X11, xcb, GL, etc.). Only skip the absolute
+          # core C/C++ runtime that every Linux box already has -- libc,
+          # libm, libdl, libpthread, librt, libgcc_s, libstdc++ and ld-linux.
+          # End users on a fresh Ubuntu desktop install need nothing else.
           ldd build/BeatBlast \
             | awk '/=> \// {print $3}' \
             | while read -r lib; do
@@ -82,34 +98,8 @@ jobs:
                   /lib/x86_64-linux-gnu/libgcc_s.so.*|\
                   /usr/lib/x86_64-linux-gnu/libstdc++.so.*|\
                   /lib/x86_64-linux-gnu/ld-*|\
-                  /lib64/ld-*|\
-                  /usr/lib/x86_64-linux-gnu/libGL.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libGLX.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libGLdispatch.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libEGL.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libGLX_*|\
-                  /usr/lib/x86_64-linux-gnu/libdrm.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libX*.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libxcb*.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libXau.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libXdmcp.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libglib-2.0.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libgobject-2.0.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libgthread-2.0.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libgmodule-2.0.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libgio-2.0.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libpango*.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libharfbuzz.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libfreetype.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libfontconfig.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libexpat.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libpng*.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libz.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libogg.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libvorbis*.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libFLAC.so.*|\
-                  /usr/lib/x86_64-linux-gnu/libdumb.so.*)
-                    echo "skip system lib: $lib"
+                  /lib64/ld-*)
+                    echo "skip core runtime: $lib"
                     ;;
                   *)
                     if [ -f "$lib" ]; then

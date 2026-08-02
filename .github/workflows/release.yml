@@ -151,37 +151,32 @@ jobs:
             "$VCPKG_ROOT/bootstrap-vcpkg.bat" -disableMetrics
           fi
 
-      - name: Configure
-        shell: bash
+      - name: Configure and Build
+        shell: cmd
         run: |
-          # Use the Visual Studio 17 2022 generator + explicitly pin the VS
-          # install path with CMAKE_GENERATOR_INSTANCE. Previous attempts
-          # failed with "could not find any instance of Visual Studio" when
-          # relying on CMake's default VS-instance discovery on windows-latest
-          # runners, and switching to Ninja broke ABI by falling back to
-          # MinGW's c++ (vcpkg builds Allegro with MSVC for the windows-static
-          # triplet). vswhere is shipped with the VS installer on GitHub
-          # runners and unambiguously reports the active VS install path.
-          VSWHERE="C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe"
-          VS_PATH="$("$VSWHERE" -latest -property installationPath)"
-          if [ -z "$VS_PATH" ]; then
-            echo "vswhere did not return a VS installationPath" >&2
-            "$VSWHERE" -latest -all -products '*' -format json >&2 || true
-            exit 1
-          fi
-          echo "Discovered Visual Studio at: $VS_PATH"
-          cmake -S . -B build \
-            -G "Visual Studio 17 2022" \
-            -A Win32 \
-            -DCMAKE_GENERATOR_INSTANCE="$VS_PATH" \
-            -DCMAKE_SYSTEM_VERSION=10.0 \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
-            -DVCPKG_TARGET_TRIPLET=x86-windows-static
-
-      - name: Build
-        shell: bash
-        run: cmake --build build --config Release -j
+          :: GitHub-hosted windows-latest runners currently ship Visual
+          :: Studio 18 (VS 2026 Preview), not VS 2022 (17). The "Visual
+          :: Studio 17 2022" CMake generator refuses a VS 18 instance, and
+          :: plain Ninja falls back to MinGW's c++ (ABI mismatch with the
+          :: MSVC-built Allegro from vcpkg). Solution: source vcvarsall.bat
+          :: for the x86 target in a cmd shell -- this puts cl.exe on PATH
+          :: and sets INCLUDE/LIB so Ninja finds MSVC directly. We use the
+          :: VS install path reported by vswhere (shipped with every VS
+          :: install) so this is robust to the exact VS major version.
+          ::
+          :: Configure and Build are merged into one cmd step so vcvarsall's
+          :: env (cl.exe, INCLUDE, LIB) is active for both phases. Each
+          :: GitHub Actions step spawns a fresh shell, so sourcing vcvarsall
+          :: in a separate Configure step would NOT carry env to Build.
+          for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do set VS_PATH=%%i
+          if not defined VS_PATH (
+            echo vswhere did not return a VS installationPath 1>&2
+            exit /b 1
+          )
+          echo Discovered Visual Studio at: %VS_PATH%
+          call "%VS_PATH%\VC\Auxiliary\Build\vcvarsall.bat" x86
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -DCMAKE_TOOLCHAIN_FILE="%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x86-windows-static
+          cmake --build build --config Release -j
 
       - name: Stage distribution
         shell: bash

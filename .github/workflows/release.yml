@@ -1,0 +1,302 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v0.1.0)'
+        required: true
+        default: 'v0.1.0'
+
+permissions:
+  contents: write
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Linux x86_64 build using system Allegro dev packages (Ubuntu apt).
+  # Bundles the runtime shared libraries alongside the executable, with the
+  # binary's rpath set to $ORIGIN/lib so the package is self-contained.
+  # ---------------------------------------------------------------------------
+  build-linux:
+    name: Build Linux x86_64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Allegro dev packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            ninja-build \
+            zip \
+            pkg-config \
+            liballegro5-dev \
+            liballegro-image5-dev \
+            liballegro-font5-dev \
+            liballegro-ttf5-dev \
+            liballegro-primitives5-dev \
+            liballegro-audio5-dev \
+            liballegro-acodec5-dev \
+            liballegro-dialog5-dev \
+            liballegro-main5-dev
+
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release -j
+
+      - name: Smoke test (just check the binary is fused)
+        run: |
+          file build/BeatBlast
+          ldd build/BeatBlast || true
+
+      - name: Stage distribution
+        run: |
+          set -e
+          STAGE="$GITHUB_WORKSPACE/staged/BeatBlast"
+          mkdir -p "$STAGE/lib"
+          cp build/BeatBlast "$STAGE/"
+          cp -r Beat-Blast/Assets "$STAGE/"
+
+          # Resolve and copy non-system .so dependencies into lib/.
+          # Skip core C runtime / system libs to keep the bundle small.
+          ldd build/BeatBlast \
+            | awk '/=> \// {print $3}' \
+            | while read -r lib; do
+                case "$lib" in
+                  /lib/x86_64-linux-gnu/libc.so.*|\
+                  /lib/x86_64-linux-gnu/libm.so.*|\
+                  /lib/x86_64-linux-gnu/libpthread.so.*|\
+                  /lib/x86_64-linux-gnu/libdl.so.*|\
+                  /lib/x86_64-linux-gnu/librt.so.*|\
+                  /lib/x86_64-linux-gnu/libgcc_s.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libstdc++.so.*|\
+                  /lib/x86_64-linux-gnu/ld-*|\
+                  /lib64/ld-*|\
+                  /usr/lib/x86_64-linux-gnu/libGL.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libGLX.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libGLdispatch.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libEGL.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libGLX_*|\
+                  /usr/lib/x86_64-linux-gnu/libdrm.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libX*.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libxcb*.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libXau.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libXdmcp.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libglib-2.0.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libgobject-2.0.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libgthread-2.0.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libgmodule-2.0.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libgio-2.0.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libpango*.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libharfbuzz.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libfreetype.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libfontconfig.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libexpat.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libpng*.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libz.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libogg.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libvorbis*.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libFLAC.so.*|\
+                  /usr/lib/x86_64-linux-gnu/libdumb.so.*)
+                    echo "skip system lib: $lib"
+                    ;;
+                  *)
+                    if [ -f "$lib" ]; then
+                      cp -fL "$lib" "$STAGE/lib/"
+                    fi
+                    ;;
+                esac
+              done
+
+          # Sanity: report the bundle.
+          echo "=== Staged lib/ contents ==="
+          ls -la "$STAGE/lib" || true
+
+      - name: Archive
+        run: |
+          cd staged
+          zip -r -X "$GITHUB_WORKSPACE/Beat-Blast-linux-x86_64.zip" BeatBlast
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Beat-Blast-linux-x86_64
+          path: Beat-Blast-linux-x86_64.zip
+          retention-days: 14
+
+  # ---------------------------------------------------------------------------
+  # Windows x86 build using vcpkg to fetch Allegro statically.
+  # ---------------------------------------------------------------------------
+  build-windows:
+    name: Build Windows x86
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Locate vcpkg
+        shell: bash
+        run: |
+          # GitHub-hosted windows-latest ships vcpkg at C:\vcpkg.
+          if [ -f "C:/vcpkg/vcpkg.exe" ] || [ -f "C:/vcpkg/bootstrap-vcpkg.bat" ]; then
+            VCPKG_ROOT="C:/vcpkg"
+          else
+            # Fall back to cloning vcpkg fresh just in case.
+            VCPKG_ROOT="$GITHUB_WORKSPACE/vcpkg"
+            git clone --depth 1 https://github.com/microsoft/vcpkg.git "$VCPKG_ROOT"
+            "$VCPKG_ROOT/bootstrap-vcpkg.sh" -disableMetrics
+          fi
+          echo "VCPKG_ROOT=$VCPKG_ROOT" >> "$GITHUB_ENV"
+          # Make sure the bootstrap script has been run.
+          if [ ! -f "$VCPKG_ROOT/vcpkg.exe" ]; then
+            "$VCPKG_ROOT/bootstrap-vcpkg.bat" -disableMetrics
+          fi
+
+      - name: Configure
+        shell: bash
+        run: |
+          cmake -S . -B build \
+            -G "Visual Studio 17 2022" \
+            -A Win32 \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" \
+            -DVCPKG_TARGET_TRIPLET=x86-windows-static
+
+      - name: Build
+        shell: bash
+        run: cmake --build build --config Release -j
+
+      - name: Stage distribution
+        shell: bash
+        run: |
+          EXE=$(find build -name "BeatBlast.exe" -type f | head -n 1)
+          if [ -z "$EXE" ]; then
+            echo "BeatBlast.exe not found in build output:" >&2
+            find build -maxdepth 4 -type f -iname "*.exe" -o -iname "BeatBlast*" | head -n 50 >&2
+            exit 1
+          fi
+          echo "Found executable: $EXE"
+          mkdir -p staged/BeatBlast
+          cp "$EXE" staged/BeatBlast/
+          cp -r Beat-Blast/Assets staged/BeatBlast/
+
+      - name: Archive
+        shell: bash
+        run: |
+          cd staged
+          7z a "$GITHUB_WORKSPACE/Beat-Blast-windows-x86.zip" BeatBlast
+          cd "$GITHUB_WORKSPACE"
+          7z l Beat-Blast-windows-x86.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Beat-Blast-windows-x86
+          path: Beat-Blast-windows-x86.zip
+          retention-days: 14
+
+  # ---------------------------------------------------------------------------
+  # Collect artifacts from both build jobs and publish a GitHub release.
+  # ---------------------------------------------------------------------------
+  release:
+    name: Publish release
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    # Only publish a release when triggered by a tag, or by a manual dispatch
+    # (which will create the missing tag from the input).
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Determine tag
+        id: tag
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            TAG="${{ github.event.inputs.tag }}"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Releasing under tag: $TAG"
+
+      - name: Create tag (manual dispatch only)
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists."
+          else
+            git config user.email "actions@github.com"
+            git config user.name "github-actions"
+            git tag "$TAG" "$(git rev-parse HEAD)"
+            git push origin "$TAG"
+          fi
+
+      - name: Create or update GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          mkdir -p release_assets
+          find artifacts -type f -name "Beat-Blast-*.zip" -exec cp {} release_assets/ \;
+          echo "Release assets:"
+          ls -la release_assets/
+
+          NOTES_FILE="$(mktemp -d)/notes.md"
+          cat > "$NOTES_FILE" <<'EOF'
+          # Beat Blast — cross-platform release
+
+          This release ships standalone builds of Beat Blast.
+
+          ## Downloads
+
+          | File | Platform | Arch |
+          | --- | --- | --- |
+          | `Beat-Blast-linux-x86_64.zip` | Linux (x86_64) | 64-bit |
+          | `Beat-Blast-windows-x86.zip` | Windows | 32-bit (x86) |
+
+          ### Linux
+
+          1. Extract `Beat-Blast-linux-x86_64.zip` somewhere convenient.
+          2. From inside the extracted folder, run `./BeatBlast`.
+
+          All required Allegro shared libraries are bundled in `lib/` next to the
+          binary, and the binary's rpath is set to `$ORIGIN/lib`, so no system
+          Allegro install is required.
+
+          ### Windows (x86)
+
+          1. Extract `Beat-Blast-windows-x86.zip` somewhere convenient.
+          2. Double-click `BeatBlast.exe` (32-bit, statically linked — no DLLs needed).
+
+          The `Assets/` folder must remain alongside the executable; the game
+          loads images, fonts, audio and the map from that folder at runtime.
+          EOF
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists; uploading assets with --clobber."
+            gh release upload "$TAG" release_assets/Beat-Blast-*.zip --clobber
+          else
+            gh release create "$TAG" \
+              release_assets/Beat-Blast-*.zip \
+              --title "Beat Blast $TAG" \
+              --notes-file "$NOTES_FILE"
+          fi
+
+          gh release view "$TAG" --json assets,url,htmlUrl -q '{assets: .assets, url: .htmlUrl}'

@@ -26,24 +26,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Allegro dev packages
+      - name: Install Allegro dev package
         run: |
           sudo apt-get update
+          # On Ubuntu 24.04 (noble) Allegro ships as a single meta package
+          # `liballegro5-dev` which pulls in headers for core + font + ttf +
+          # image + primitives + audio + acodec + dialog + main. The split
+          # `liballegro-<addon>5-dev` packages do not exist on noble.
           sudo apt-get install -y \
             build-essential \
             cmake \
             ninja-build \
             zip \
             pkg-config \
-            liballegro5-dev \
-            liballegro-image5-dev \
-            liballegro-font5-dev \
-            liballegro-ttf5-dev \
-            liballegro-primitives5-dev \
-            liballegro-audio5-dev \
-            liballegro-acodec5-dev \
-            liballegro-dialog5-dev \
-            liballegro-main5-dev
+            liballegro5-dev
 
       - name: Configure
         run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
